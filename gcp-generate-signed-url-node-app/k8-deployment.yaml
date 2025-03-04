@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gcp-list-bucket
+  name: gcp-list-bucket
+  # namespace: $NAME_SPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gcp-list-bucket
+  template:
+    metadata:
+      labels:
+        app: gcp-list-bucket
+    spec:
+      serviceAccountName: ksa-acc-genai
+      containers:
+      - image: utssaha/gcp-list-bucket:node
+        name: gcp-list-bucket
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gcp-list-bucket-svc
+  # namespace: $NAME_SPACE
+spec:
+  type: NodePort
+  ports:
+  - port: 8082
+    targetPort: 3000
+  selector:
+    app: gcp-list-bucket
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gcp-list-bucket-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gcp-list-bucket-svc
+            port:
+              number: 8082
