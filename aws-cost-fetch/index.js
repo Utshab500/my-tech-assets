@@ -2,6 +2,7 @@ import { execSync, spawn } from 'child_process';
 import { fromSSO } from '@aws-sdk/credential-provider-sso';
 import { CostExplorerClient, GetCostAndUsageCommand } from "@aws-sdk/client-cost-explorer";
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -56,4 +57,50 @@ async function getCostData() {
     }
 }
 
-getCostData();
+async function getAccumulatedCost(startDate, endDate) {
+    await checkAndRefreshSSO(); // Ensure SSO credentials are valid
+    const client = new CostExplorerClient({ 
+        region: "ap-southeast-1", 
+        credentials: fromSSO({ profile: AWS_PROFILE })
+    });
+    const params = {
+      TimePeriod: { Start: startDate, End: endDate },
+    //   Granularity: "DAILY",  // Fetch costs per day
+      Granularity: "MONTHLY",  // Fetch costs per day
+      Metrics: ["UnblendedCost"],  // Get actual spending
+      GroupBy: [{ Type: "DIMENSION", Key: "SERVICE" }]  // Group costs by service
+    };
+  
+    try {
+      const data = await client.send(new GetCostAndUsageCommand(params));
+      
+      let totalCost = 0;
+      let serviceBreakdown = {};
+  
+      data.ResultsByTime.forEach((timeEntry) => {
+        timeEntry.Groups.forEach((group) => {
+          const serviceName = group.Keys[0];
+          const cost = parseFloat(group.Metrics.UnblendedCost.Amount);
+  
+          // Accumulate cost per service
+          serviceBreakdown[serviceName] = (serviceBreakdown[serviceName] || 0) + cost;
+          totalCost += cost;
+        });
+      });
+  
+      console.log("Total Accumulated Cost:", totalCost.toFixed(2));
+      console.log("Service-wise Cost Breakdown:", serviceBreakdown);
+      console.log("Total no of Services:", Object.keys(serviceBreakdown).length);
+  
+      return { totalCost, serviceBreakdown };
+  
+    } catch (error) {
+      console.error("Error fetching accumulated cost:", error);
+    }
+}
+  
+// Example: Fetch granular cost for February 2024
+// getCostData();
+
+// Example: Fetch accumulated cost for February 2024
+getAccumulatedCost("2025-03-01", "2025-03-04");
