@@ -1,5 +1,7 @@
 # Description
-Here in this POC I install TLS/SSL certificate in **kubernetes ingress**
+Here in this POC I install TLS/SSL certificate in **kubernetes ingress**. The POC is done in a *GCP GKE* cluster hence
+- Service type used `NodePort`
+- Ingress class used `gce`
 
 ## Steps
 ### Used Domain name in the POC
