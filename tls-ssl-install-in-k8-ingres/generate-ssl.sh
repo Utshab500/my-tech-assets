@@ -39,8 +39,8 @@ distinguished_name = dn
 C = SG
 ST = Yishun
 L = Yishun
-O = MyApp
-OU = MyApp Dev
+O = ${DOMAIN}
+OU = ${DOMAIN} Dev
 CN = ${DOMAIN}
 
 [ req_ext ]
