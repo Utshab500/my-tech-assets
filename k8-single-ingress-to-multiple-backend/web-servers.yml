@@ -1,0 +1,74 @@
+# Nginx
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: my-nginx-server
+  name: my-nginx-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-nginx-server-pod
+  template:
+    metadata:
+      labels:
+        app: my-nginx-server-pod
+    spec:
+      containers:
+      - image: nginx:latest
+        name: my-nginx-container
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+            name: http-web-svc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-nginx-server-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 8082
+    targetPort: 80
+  selector:
+    app: my-nginx-server-pod
+
+# Apache
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: my-apache-server
+  name: my-apache-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-apache-server-pod
+  template:
+    metadata:
+      labels:
+        app: my-apache-server-pod
+    spec:
+      containers:
+      - image: httpd:latest
+        name: my-apache-container
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+            name: http-web-svc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-apache-server-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 8082
+    targetPort: 80
+  selector:
+    app: my-apache-server-pod
