@@ -30,7 +30,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 8082
+  - port: 80
     targetPort: 80
   selector:
     app: my-nginx-server-pod
@@ -68,7 +68,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 8082
+  - port: 80
     targetPort: 80
   selector:
     app: my-apache-server-pod
@@ -92,11 +92,11 @@ spec:
           service:
             name: my-nginx-server-svc
             port:
-              number: 8082
+              number: 80
       - path: /apache
         pathType: Prefix
         backend:
           service:
             name: my-apache-server-svc
             port:
-              number: 8082
+              number: 80
