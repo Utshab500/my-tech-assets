@@ -1,16 +1,33 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: nginx-rewrite-config
+spec:
+  customRequestHeaders:
+    headers:
+    - name: X-Original-Path
+      value: "{path}"
+  cdn:
+    enabled: false
+  timeoutSec: 30
+  connectionDraining:
+    drainingTimeoutSec: 60
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: my-web-server-ingress-2
   annotations:
     kubernetes.io/ingress.class: gce
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    kubernetes.io/ingress.kubernetes.io/backends: '{"k8s-be-30xxx--xxxxxxxxxx-8082-xxxxx":"{\"customRequestHeaders\":true}"}'
+    kubernetes.io/ingress.kubernetes.io/default-backend: '{"customRequestHeaders":true}'
+    kubernetes.io/ingress.kubernetes.io/default-backend-config: '{"default":"nginx-rewrite-config"}'
 spec:
   ingressClassName: gce
   rules:
   - http:
       paths:
-      - path: /nginx/(.*)
+      - path: /nginx/
         pathType: Prefix
         backend:
           service:
