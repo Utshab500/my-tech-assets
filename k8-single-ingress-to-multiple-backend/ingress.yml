@@ -9,15 +9,15 @@ spec:
   rules:
   - http:
       paths:
-      - path: /nginx
-        pathType: Prefix
+      - path: /nginx/*
+        pathType: ImplementationSpecific
         backend:
           service:
             name: my-nginx-server-svc
             port:
               number: 8082
-      - path: /apache
-        pathType: Prefix
+      - path: /apache/*
+        pathType: ImplementationSpecific
         backend:
           service:
             name: my-apache-server-svc
