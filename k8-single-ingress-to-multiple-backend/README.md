@@ -20,6 +20,7 @@ This is also same as `Nginx`. It does not have any resource to serve for path `/
 As we looked both `Nginx` and `Apache` cannot serve *ingress path* `/nginx/` and `/apache/` since they do not have any resource.
 <br>
 But I have set `Apache` backend as the default backend in `ingress.yml`. Hence for `/` path after the `Ingress IP` it serves from *default backend*, `Apache` in this case.
+<br>
 ![alt text](image-2.png)
 
 ## Node API App
