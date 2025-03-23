@@ -11,14 +11,12 @@ app.use(express.json());
 // In-memory storage
 const users = [];
 
-// GET endpoint to fetch all users
 app.get("/", (req, res) => {
   res.json({
     message: "OK"
   });
 });
 
-// GET endpoint to fetch all users
 app.get("/node/health", (req, res) => {
   res.json({
     message: "health OK"
