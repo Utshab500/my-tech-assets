@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: node-app
+  name: node-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app-pod
+  template:
+    metadata:
+      labels:
+        app: node-app-pod
+    spec:
+      containers:
+      - image: utssaha/node-app:v1
+        name: node-app-container
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 3000
+            name: node-app-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: node-app-pod
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: node-app-ingress
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  ingressClassName: gce
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: node-app-svc
+            port:
+              number: 3000
