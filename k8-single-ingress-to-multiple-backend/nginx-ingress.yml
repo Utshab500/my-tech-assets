@@ -8,6 +8,7 @@ spec:
   timeoutSec: 30
   connectionDraining:
     drainingTimeoutSec: 60
+
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
