@@ -23,20 +23,6 @@ spec:
           - containerPort: 80
             name: http-web-svc
 ---
-apiVersion: cloud.google.com/v1
-kind: BackendConfig
-metadata:
-  name: my-nginx-server-backend-config
-spec:
-  # customRequestHeaders:
-  #   headers:
-  #     - "X-Forwarded-Host: example.com"
-  healthCheck:
-    requestPath: /
-  timeoutSec: 30
-  urlRewrite:
-    pathPrefixRewrite: "/"
----
 apiVersion: v1
 kind: Service
 annotations:
