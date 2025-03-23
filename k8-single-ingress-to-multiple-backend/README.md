@@ -9,7 +9,7 @@ The idea is such that I shall have **3 different routes** to route traffics to d
 ### Nginx
 ![alt text](image.png)
 <br>
-The Nginx is serving `404 Not Found` because I only deployed the default `Nginx` docker image straight from `dockerhub.io`. Hence the container inside the pod do not have any resource in `/nginx/` path. Rather I would have served the default page in `/` but I do not have the ingress path for `/`
+The Nginx is serving `404 Not Found` because I only deployed the default `Nginx` docker image straight from `dockerhub.io`. Hence the container inside the pod do not have any resource in `/nginx/` path. Rather it would have served the default page in `/` but I do not have the ingress path for `/`
 
 ### Apache
 ![alt text](image-1.png)
