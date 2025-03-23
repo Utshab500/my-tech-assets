@@ -15,7 +15,7 @@ spec:
         app: node-app-pod
     spec:
       containers:
-      - image: utssaha/node-app:v1
+      - image: utssaha/node-app:v2
         name: node-app-container
         imagePullPolicy: Always
         ports:
