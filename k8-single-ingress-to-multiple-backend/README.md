@@ -1,5 +1,6 @@
 # Description
 In this POC I triage for serving multiple backends (Nginx, Apache, a small Node API) with a single `Ingress`.  
+This POC is done on `GKE` cluster.
 ## Idea
 The idea is such that I shall have **3 different routes** to route traffics to desired backends.  
 - `/nginx/` for Nginx traffic
