@@ -73,30 +73,40 @@ spec:
   selector:
     app: my-apache-server-pod
 
+# Node app
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: my-web-server-ingress
-  annotations:
-    kubernetes.io/ingress.class: gce
-    # gce.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    app: node-app
+  name: node-app
 spec:
-  ingressClassName: gce
-  rules:
-  - http:
-      paths:
-      - path: /nginx
-        pathType: Prefix
-        backend:
-          service:
-            name: my-nginx-server-svc
-            port:
-              number: 8082
-      - path: /apache
-        pathType: Prefix
-        backend:
-          service:
-            name: my-apache-server-svc
-            port:
-              number: 8082
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app-pod
+  template:
+    metadata:
+      labels:
+        app: node-app-pod
+    spec:
+      containers:
+      - image: utssaha/node-app:v3
+        name: node-app-container
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 3000
+            name: node-app-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: node-app-pod

@@ -6,20 +6,32 @@ metadata:
     kubernetes.io/ingress.class: gce
 spec:
   ingressClassName: gce
+  defaultBackend:
+    service:
+      name: my-apache-server-svc
+      port:
+        number: 8082
   rules:
   - http:
       paths:
-      - path: /nginx
+      - path: /nginx/
         pathType: Prefix
         backend:
           service:
             name: my-nginx-server-svc
             port:
               number: 8082
-      - path: /apache
+      - path: /apache/
         pathType: Prefix
         backend:
           service:
             name: my-apache-server-svc
             port:
               number: 8082
+      - path: /node/
+        pathType: Prefix
+        backend:
+          service:
+            name: node-app-svc
+            port:
+              number: 3000
