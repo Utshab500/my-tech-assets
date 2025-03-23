@@ -23,8 +23,8 @@ spec:
             name: my-apache-server-svc
             port:
               number: 8082
-      - path: /node/*
-        pathType: ImplementationSpecific
+      - path: /node/
+        pathType: Prefix
         backend:
           service:
             name: node-app-svc
