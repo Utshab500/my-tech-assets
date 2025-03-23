@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: my-web-server-ingress
+  name: my-web-server-ingress-2
   annotations:
     kubernetes.io/ingress.class: gce
 spec:
