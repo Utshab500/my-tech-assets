@@ -6,6 +6,10 @@ Here in this POC I install TLS/SSL certificate in **kubernetes ingress**. The PO
 ## Steps
 ### Used Domain name in the POC
 `myapp.utshab.com`
+#### Command used to generate self-signed certificate
+```bash
+./generate-ssl.sh myapp.utshab.com
+```
 
 ### Create a dev namespace.
 ```bash
