@@ -1,0 +1,30 @@
+version: '3.1'
+
+services:
+  squid-proxy:
+    image: nginx:latest
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - /Users/utshabsaha/Learning/my-tech-assets/squid-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ["CMD", "curl" ,"http://localhost"]
+      timeout: 20s
+      retries: 10
+
+  node-api:
+    image: utssaha/node-app:v3
+    restart: always
+    ports:
+      - 3000:3000
+    healthcheck:
+      test: ["CMD", "curl" ,"http://localhost:3000/node/health"]
+      timeout: 20s
+      retries: 10
+
+  streamlit:
+    image: streamlit:latest
+    restart: always
+    ports:
+      - 8501:8501
