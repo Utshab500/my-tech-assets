@@ -3,7 +3,7 @@ Here I solve an issue of [streamlit](https://https://streamlit.io/) a light weig
 
 # Issue
 The issue is such that whenevenr the **streamlit app** is served on **some containerised cloud environment (ECS, EKS, GKE)** the page gets refreshed after **30 seconds**. I managed to reproduce the same in local system.
-<video src="streamlit-issue-recording.mov" title="Title" autoplay loop muted playsinline></video>
+![alt text](streamlit-issue-recording.gif)
 
 # What is actually happening?
 The reason, that I managed to reproduce the issue in local system is because its not technically a cloud environment issue but a fundamental fact of the **streamlit** framework, the way it works.
@@ -23,4 +23,4 @@ proxy_http_version 1.1;
 proxy_set_header Upgrade $http_upgrade;
 proxy_set_header Connection "upgrade";
 ```
-<video src="streamlit-issue-solution.mov" title="Title" autoplay loop muted playsinline></video>
+![alt text](streamlit-issue-solution.gif)
