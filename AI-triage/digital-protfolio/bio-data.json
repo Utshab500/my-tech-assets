@@ -1,0 +1,148 @@
+{
+    "name": "Utshab Saha",
+    "head-line": "DevOps Specialist at Accenture | Gitlab-CI | Azure DevOps | GitHub Actions | Docker | Kubernetes",
+    "address": "12 Dover Close East, 22-204, 130012",
+    "email": "utshab500@gmail.com",
+    "phone": "+65-81842269",
+    "objective": "With 5+ years of professional experience I have worked on several technology in different roles. While doing that I worked closely with developers and operations working in both the roles. So I took keen interest working with infrastructure, automation and cloud and establish myself as a profound DevOps personnel, who can enhance the esteemed organizations Digital Business Transformation journey!",
+    "experience": {
+        "total-exp": "5 years",
+        "relevant-exp": "4.5 years"
+    }, 
+    "employment-history": [
+        {
+            "organization": "PwC India",
+            "duration": "2021 - Present",
+            "history": [
+                {
+                    "designation": "Senior Consultant",
+                    "duration": "Apr/2022 - Present",
+                    "role": "DevOps Engineer",
+                    "contribution": "Designed a container security tool infrastructure",
+                    "technology-used": "Azure Pipelines, Docker, Python, Twistlock, JFrog, Bash, Kubernetes",
+                    "core-responsibility": [
+                        "Managing end to end infrastructure including Kubernetes cluster, Secure Docker images, Azure CI/CD pipelines and Azure Test Plans.",
+                        "ADO board management, defining and estimation of Product Backlogs and tasks.",
+                        "Managing internal Stakeholders and Team management.",
+                        "Managing External Stakeholders.",
+                        "Focusing on the architecture design and optimization."
+                    ]
+                },
+                {
+                    "designation": "Consultant",
+                    "duration": "Feb/2021 - Mar/2022",
+                    "role": "DevOps Engineer",
+                    "contribution": "Designed a container security tool infrastructure",
+                    "technology-used": "Azure Pipelines, Docker, Python, Twistlock, JFrog, Bash, Kubernetes",
+                    "core-responsibility": [
+                        "Writing Multistage Dockerfiles for runtime base-images (node/JDK), Conventional and Distroless.",
+                        "Mitigation of Common Vulnerability Exposures (CVE).",
+                        "Writing Python script to detect runtime images in application Dockerfile and replace it.",
+                        "Writing Kubernetes Manifest files for, Deployment, Service, PV and PVC.",
+                        "Writing Azure Pipelines for Build and Deploy.",
+                        "Designing branching strategy and following the best practices.",
+                        "Client and internal stakeholder management.",
+                        "Configuration of Kubernetes Cluster on bare metal servers."
+                    ]
+                }
+            ]
+        },
+        {
+            "organization": "Publicis Sapient",
+            "duration": "2019 - 2021",
+            "history": [
+                {
+                    "designation": "Associate Software Development Engineer",
+                    "duration": "Jul/2019 - Feb/2021",
+                    "role": "DevOps Engineer",
+                    "contribution": "Migrated various legacy applications to AWS Cloud",
+                    "technology-used": "Java, Maven, NodeJS, PHP, Docker, AWS ECS, AWS EFS, AWS CloudWatch, AWS ELB, Terraform, MySQL, Bitbucket Pipeline, AWS Code Commit and CodeBuild",
+                    "core-responsibility": [
+                        "Writing Dockerfiles to containerize the applications.",
+                        "Migrating DB from one region to another.",
+                        "Writing CI/CD Pipelines for the build and deployment.",
+                        "Managing Cloud infrastructure using terraform.",
+                        "Troubleshooting the applications if needed."
+                    ]
+                }
+            ]
+        }
+    ],
+    "technical-skill": {
+        "version-control": "Git, GitHub, Bitbucket, Azure Repos, AWS CodeCommit",
+        "container-technology": "Docker, Kubernetes",
+        "ci/cd": "Azure DevOps pipeline, AWS Code Build, Jenkins",
+        "code": "Java, Python, Bash, Nodejs",
+        "monitoring": "Elastic Search + AWS Kinesis, CloudWatch",
+        "iac": "Ansible, Terraform",
+        "cloud": "AWS, Azure"
+    },
+    "academics": [
+        
+        {
+                "course":"M.Tech", 
+                "institute": "Jadavpur University",
+                "major": "Computer Technology",
+                "pass-year": "2019"
+            }
+            ,
+            
+            {
+                "course":"B.Tech", 
+                "institute": "West Bengal University of Technology",
+                "major": "Computer Science Engineering",
+                "pass-year": "2016"
+            }
+            ,
+            
+             {
+                "course":"10+2(HIGHER SECONDARY)", 
+                "institute": "Baruipur High School (WBCHSE)",
+                "major": "Science",
+                "pass-year": "2012"
+            }
+            ,
+            
+             {
+                "course":"10 (SECONDARY)", 
+                "institute": "Baruipur High School (WBBSE)",
+                "major": "General",
+                "pass-year": "2010"
+            }
+        
+    ],
+    "languages": [
+        "Bengali Native",
+        "English Fluent",
+        "Hindi Professional"
+    ],
+    "image-url":"https://media.licdn.com/dms/image/C4E03AQG_W473aVFt3A/profile-displayphoto-shrink_800_800/0/1622659167791?e=1690416000&v=beta&t=nUfmbMAP_t_-mdn2bPy1bpgTIS-C2uwoiHT1DsCbZKY",
+    "online-presence":{
+        
+        "github":"",
+        "linkedin":"",
+        "instagram":"",
+        "facebook":"",
+        "reddit":"",
+        "youtube":"",
+        "stackoverflow":"",
+        "others":"",
+        "personal-website":"",
+        "twitter":""
+    },
+    "certification": [{
+        "name":"",
+        "organization":"",
+        "issue-date": {
+            "month":"",
+            "year":""
+        },
+        "expiry-date": {
+            "month":"",
+            "year":""
+        },
+        "credential-id": "",
+        "credential-url": "",
+        "cerficate-badge":""
+    }]
+}
