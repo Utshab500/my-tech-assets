@@ -2,6 +2,7 @@
 
 ## Description
 A brief overview of the simple calculator web application. This is a front-end application built using HTML for structure, CSS for styling, and JavaScript for functionality. It provides a user-friendly interface for performing basic arithmetic calculations.
+**This project was developed with assistance from Gemini Code Assist and Jules.**
 
 ## Key Features
 - Basic arithmetic operations: Addition (+), Subtraction (-), Multiplication (*), Division (/).
