@@ -115,3 +115,79 @@ ul {
     list-style-type: disc;
     padding-left: 20px;
 }
+
+/* Styles for create-portfolio.html form */
+form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+form input[type="text"],
+form input[type="email"],
+form input[type="tel"],
+form input[type="url"],
+form input[type="number"],
+form textarea {
+    width: calc(100% - 22px); /* Account for padding and border */
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+fieldset {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+}
+legend {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #337ab7; /* Matches section headers in portfolio view */
+}
+.employment-entry h4, 
+.academic-entry h4, 
+.certification-entry h4,
+.job-history-section h5 { /* Added for job role headers */
+    margin-top: 15px;
+    color: #555;
+}
+hr {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+/* Style for add buttons */
+#portfolioForm button[type="button"] {
+    background-color: #777; /* A neutral color */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 10px;
+    display: inline-block; /* Allow them to sit next to other elements if needed */
+    width: auto; /* Override general button width */
+}
+
+#portfolioForm button[type="button"]:hover {
+    background-color: #666;
+}
+
+/* Ensure the main submit button uses the primary style */
+/* The general button style is already defined, so #generateJsonBtn will inherit it. */
+/* If specific overrides are needed for #generateJsonBtn, they can be added here. */
+/* For example, to ensure it's always green if other buttons change: */
+/*
+#generateJsonBtn {
+    background-color: #5cb85c;
+}
+#generateJsonBtn:hover {
+    background-color: #4cae4c;
+}
+*/
