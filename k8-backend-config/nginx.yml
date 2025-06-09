@@ -5,6 +5,8 @@ metadata:
   name: my-backend-config
 spec:
   timeoutSec: 300 # Set your desired timeout in seconds
+  healthCheck:
+    requestPath: /
 
 ---
 apiVersion: apps/v1
