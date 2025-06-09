@@ -2,10 +2,10 @@
 env: stg
 replicaCount: 2
 image:
-  repository: nginx
-  tag: "1.25.0"
+  repository: httpd
+  tag: "latest"
   pullPolicy: IfNotPresent
 service:
-  type: ClusterIP
+  type: NodePort
   port: 80
 resources: {}
