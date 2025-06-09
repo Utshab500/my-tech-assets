@@ -1,0 +1,74 @@
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: my-backend-config
+spec:
+  timeoutSec: 300 # Set your desired timeout in seconds
+  healthCheck:
+    requestPath: /
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: my-nginx-server
+  name: my-nginx-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-nginx-server-pod
+  template:
+    metadata:
+      labels:
+        app: my-nginx-server-pod
+    spec:
+      containers:
+      - image: nginx:latest
+        name: my-nginx-container
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+            name: http-web-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-nginx-server-svc
+  annotations:
+    cloud.google.com/backend-config: '{"default": "my-backend-config"}'
+spec:
+  type: NodePort
+  ports:
+  - port: 8082
+    targetPort: 80
+  selector:
+    app: my-nginx-server-pod
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-nginex-server-ingress
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  ingressClassName: gce
+  defaultBackend:
+    service:
+      name: my-nginx-server-svc
+      port:
+        number: 8082
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-nginx-server-svc
+            port:
+              number: 8082
