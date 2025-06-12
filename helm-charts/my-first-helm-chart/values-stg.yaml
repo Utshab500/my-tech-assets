@@ -1,0 +1,11 @@
+# Stage values override
+env: stg
+replicaCount: 2
+image:
+  repository: httpd
+  tag: "latest"
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+  port: 80
+resources: {}

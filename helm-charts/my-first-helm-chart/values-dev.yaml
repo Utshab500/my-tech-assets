@@ -1,0 +1,10 @@
+replicaCount: 1
+image:
+  repository: nginx
+  tag: "1.25.0"
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+  port: 80
+env: dev
+resources: {}
