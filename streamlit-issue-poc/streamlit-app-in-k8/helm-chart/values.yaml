@@ -1,0 +1,12 @@
+# Stage values override
+env: dev
+replicaCount: 1
+image:
+  repository: utssaha/streamlit-issue-poc
+  tag: "v1"
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+  servicePort: 8501
+  containerPort: 8501
+resources: {}
