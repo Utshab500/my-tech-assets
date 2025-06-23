@@ -1,7 +1,18 @@
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: {{ include "app-chart.fullname" . }}
+spec:
+  timeoutSec: 3600 # Set your desired timeout in seconds
+
+---    
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "app-chart.fullname" . }}
+  annotations:
+    cloud.google.com/backend-config: '{"default": "{{ include "app-chart.fullname" . }}"}'
   labels:
     app: {{ include "app-chart.fullname" . }}
     environment: {{ .Values.env }}
