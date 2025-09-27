@@ -1,0 +1,9 @@
+components:
+  - name: component-a
+    image: nginx:1.25
+    port: 8080
+    enabled: true
+  - name: component-b
+    image: busybox
+    port: 9090
+    enabled: true

@@ -1,0 +1,8 @@
+{{- range .Values.components }}
+{{- if .enabled }}
+
+---
+{{- include "test.deployment" . }}
+
+{{- end }}
+{{- end }}
