@@ -4,9 +4,8 @@ metadata:
   name: my-secret
 type: Opaque
 data:
-  USERNAME: dXNlcm5hbWU=   # base64 for 'username'
+  USERNAME: dXRzaGFi   # base64 for 'utshab'
   PASSWORD: cGFzc3dvcmQ=   # base64 for 'password'
-  API_KEY: dXRzaGFi   # base64 for 'api_key'
 
 ---
 apiVersion: apps/v1
