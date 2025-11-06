@@ -6,6 +6,7 @@ type: Opaque
 data:
   USERNAME: dXNlcm5hbWU=   # base64 for 'username'
   PASSWORD: cGFzc3dvcmQ=   # base64 for 'password'
+  API_KEY: test   # base64 for 'api_key'
 
 ---
 apiVersion: apps/v1
