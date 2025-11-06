@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret
+type: Opaque
+data:
+  USERNAME: dXNlcm5hbWU=   # base64 for 'username'
+  PASSWORD: cGFzc3dvcmQ=   # base64 for 'password'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-container
+          image: nginx
+          envFrom:
+            - secretRef:
+                name: my-secret
