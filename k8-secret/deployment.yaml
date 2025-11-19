@@ -47,9 +47,6 @@ spec:
       containers:
         - name: my-container
           image: nginx
-          envFrom:
-            - secretRef:
-                name: my-secret
           volumeMounts:
             - name: my-secret-volume
               mountPath: /tmp/secret-data
