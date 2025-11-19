@@ -28,3 +28,36 @@ spec:
           envFrom:
             - secretRef:
                 name: my-secret
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-mount
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secret-mount
+  template:
+    metadata:
+      labels:
+        app: secret-mount
+    spec:
+      containers:
+        - name: my-container
+          image: nginx
+          envFrom:
+            - secretRef:
+                name: my-secret
+          volumeMounts:
+            - name: my-secret-volume
+              mountPath: /tmp/secret-data
+              subPath: secret-file
+              readOnly: true
+
+      volumes:
+        - name: my-secret-volume
+          secret:
+            secretName: my-secret
+  
