@@ -26,6 +26,9 @@ spec:
       containers:
         - name: my-container
           image: nginx
+          env:
+          - name: TZ
+            value: Asia/Singapore
           envFrom:
             - secretRef:
                 name: my-secret
