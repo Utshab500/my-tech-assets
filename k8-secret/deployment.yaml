@@ -53,7 +53,7 @@ spec:
           image: nginx
           volumeMounts:
             - name: my-secret-volume
-              mountPath: /tmp/secret-data/username.txt
+              mountPath: /tmp/secret-data/mytext.txt
               subPath: username.txt
               readOnly: true
 
