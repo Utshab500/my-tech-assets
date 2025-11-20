@@ -52,6 +52,12 @@ spec:
       containers:
         - name: my-container
           image: nginx
+          env:
+            - name: MY_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: release
           volumeMounts:
             - name: my-secret-volume
               mountPath: /tmp/secret-data/mytext.txt
