@@ -6,6 +6,7 @@ type: Opaque
 data:
   USERNAME: dXRzaGFi   # base64 for 'utshab'
   PASSWORD: cGFzc3dvcmQ=   # base64 for 'password'
+  username.txt: dXRzaGFi   # base64 for 'utshab'
 
 ---
 apiVersion: apps/v1
@@ -49,8 +50,8 @@ spec:
           image: nginx
           volumeMounts:
             - name: my-secret-volume
-              mountPath: /tmp/secret-data/USERNAME
-              subPath: USENAME
+              mountPath: /tmp/secret-data/username.txt
+              subPath: username.txt
               readOnly: true
 
       volumes:
