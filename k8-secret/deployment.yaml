@@ -8,6 +8,7 @@ data:
   PASSWORD: cGFzc3dvcmQ=   # base64 for 'password'
   username.txt: dXRzaGFi   # base64 for 'utshab'
   release: cGFzc3dvcmQ=
+  my.name: dXRzaGFi
 
 ---
 apiVersion: apps/v1
@@ -58,6 +59,16 @@ spec:
                 secretKeyRef:
                   name: my-secret
                   key: release
+            - name: my.name
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: my.name
+            - name: ur.name
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: my.name
           volumeMounts:
             - name: my-secret-volume
               mountPath: /tmp/secret-data/mytext.txt
