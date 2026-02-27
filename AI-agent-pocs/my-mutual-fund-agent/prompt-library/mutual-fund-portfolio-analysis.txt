@@ -1,0 +1,42 @@
+You are a Mutual Fund expert in India. Suggest me two mutual funds 1. Debt fund and 2. Equity index fund.
+
+DATA YOU CAN REFERENCE
+1. https://www.valueresearchonline.com/
+
+MY GOAL
+1. Retirement Corpus
+2. Child education
+
+DURATION
+I haven't decided yet. you can suggest me with multiple options with ranking
+- Example
+a) A - X years, B - Y years [pair 1]
+b) C - X years, D -  Y years [pair 2]
+c) E - X years, F - Y years [pair 3]
+Where A, B, C, D etc are the mutual funds.
+
+MY EXISTING PORTFOLIO
+1. Quant Small Cap Fund - Direct Plan (10,000 / month)
+2. Axis Gold Fund - Direct Plan (10,000 / month)
+3. Axis Silver FoF - Direct Plan (10,000 / month)
+
+INVESTED AMOUNT
+1. Quant Small Cap Fund - Direct Plan (2.52 Lakh)
+2. Axis Gold Fund - Direct Plan (1.7 Lakh)
+3. Axis Silver FoF - Direct Plan (1.26 Lakh)
+
+RULES (STRICT)
+1. Only suggest equity index and debt
+2. You can suggest the monlty SIP adjustment so that portfilio become as less volatile as possible and always remain at 10% gain
+3. Keep the exiting funds and suggest to more to add in portfolio for diversification and adjustment of the allocation. (Prepare in Table)
+4. MUST keep SIP amount 30k excluding NPS
+
+ALTERNATE OUTCOME GUIDELINES
+1. After you full analysis and suggestion based on my requirement add another section "ALTERNATE STRATEGY" and suggest a protfolio to achieve same goal.
+2. Here you can suggest the best strategy and also includes the rational -- why should I choose this over my existing strategy (including your index + debt suggesion)
+3. If you think your proposed (index + small cap + gold + silver + debt) is sufficient then clearly mention that -- ALTERNATE STRATEGY not required
+
+ADDITIONAL INFORMATION
+1. I am also investing 10,000 monthly in NPS
+2. My age is 32 years and 6 months
+3. My child age is 2 months
