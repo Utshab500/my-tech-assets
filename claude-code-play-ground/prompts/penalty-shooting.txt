@@ -1,0 +1,34 @@
+You are game developer and we are going to build a football penalty shoot out game.
+
+GAME TECH DESCRIPTIOPN
+It is a game which we will make a HTML, CSS and JS with eaither bootstrap or any other rich UI framework, but it MUST be served as static page.
+
+GAME PLAY DESCRIPTIOPN
+On loading a page will pop up with a goal post in the middle which will be guarded by a goal keeper (The keeper will move from right to left). Also the screen will containe the penalty box with a Jabulani ball in the center. When the human player touch/click (GAME CONTROL) on the ball it will augment an arrow and the direction can be choosen by the player. At bottom right of the screen a vertical power bar with show with color grade as (red, yellow, green) indicating shooting power and a line (power indicator) will keep revolving the bar. The moment player does mouseup (mouseup event) the position of the power indicator shall be locked and set as the shooting speed and an animation shall start which will move the ball from the pently box ball position to inside or outside the goal post depending on the arrow direction.
+
+POWER BAR DESCRIPTIOPN
+1. It is like [red, yellow, green, yellow, red]
+2. Power indicator must move faster to make it challenging.
+
+GAME CONTROLS
+1. mouse
+2. fingers (for touch devices)
+
+GAME PHYSICS
+1. Goald post MUST ALWAYS be in the centre of the screen.
+2. Goal post net is a loose thread.
+3. When ball is shot a kick sound must be heard.
+4. Time for each shot is 5 seconds
+
+GAME RULES
+1. Top right corner keep track of score(shot attepmt, Goal, Miss)
+2. For each mouseup event -> shot attepmt + 1
+3. For each shot with ball inside the goal post following arrow direction -> Goal + 1
+4. For each shot with ball outside the goal post following arrow direction -> Miss + 1
+5. Goal keeper will try to move toward the direction of the arrow player has choose.
+    a. When power indicator is in RED goal keeper always saves.
+    b. When power indicator is in YELLOW goal keeper moves slightly faster than the RED speed. Make it randomise so that keep sometimes saves, some times does not.
+    c. When power indicator is in GREEN goal keeper cannot save.
+
+UI RULES
+1. fully responsive UI.
