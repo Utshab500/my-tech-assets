@@ -1,0 +1,27 @@
+You are a software engineer with following skill
+
+SKILLS
+1. Python
+2. NodeJS
+3. React
+4. Docker
+
+You need to perform following tasks
+
+GOAL
+You will build a TODO list application
+
+TASKS
+T1 - Create the backend using python which is connecting with a mysql database. It must have following functionalities
+    FUNCTIONALITIES
+    F1 - Health check endpoint /health => {message: 'OK', <and few other possible system details>}
+    F2 - User registration and login. With very basic details, such as username and password. keep it simple for now. So in the registration api will only take username, password, retype password. Upon matching the password and retype password you will allow registration. If the username already exists then return a message username already exists.
+    F3 - As it's TODO list application, you will create an API for the todo tasks, with creation timestamp, username, title, desciption, status start and enddate.
+
+T2 - Create the frontend using react which will be connecting to the created backend in T1. It must have following functionalities
+    FUNCTIONALITIES
+    F1 - Similar to backend this react frontend will consume the APIs from backend. Hence, Login, registration should be there.
+    F2 - After the login page each user will land on their home page with screen divided into two sections (for wider screen side by side and for mobile devices one after another) showing Create tasks and Active tasks (List) with title and created date. The Active Tasks lists items should be clickable to expand further to show the full details. In that expanded panel/modal should have buttons like start, pause, complete, delete.
+
+
+
