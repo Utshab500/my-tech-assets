@@ -1,0 +1,46 @@
+{
+    "name": "Anupam Dutta",
+    "head-line": "Awesome programmer",
+    "address": "Baruipur, Datta para",
+    "email": "anupam@gmail.com",
+    "phone": "123456789",
+    "image-url": "",
+    "objective": "I am the best programmer in the world.",
+    "experience": {
+        "total-exp": "5+",
+        "relevant-exp": "5+"
+    },
+    "employment-history": [
+        {
+            "organization": "ABC",
+            "duration": "2021 - Present",
+            "history": [
+                {
+                    "designation": "Associate Programmer",
+                    "duration": "5 years",
+                    "role": "Fullstack development",
+                    "contribution": "Too many",
+                    "technology-used": "HTML, CSS, JS",
+                    "core-responsibility": []
+                }
+            ]
+        }
+    ],
+    "technical-skill": {
+        "version-control": "",
+        "container-technology": "",
+        "ci/cd": "",
+        "code": "",
+        "monitoring": "",
+        "iac": "",
+        "cloud": ""
+    },
+    "academics": [],
+    "languages": [],
+    "online-presence": {
+        "github": "",
+        "linkedin": "",
+        "personal-website": ""
+    },
+    "certification": []
+}

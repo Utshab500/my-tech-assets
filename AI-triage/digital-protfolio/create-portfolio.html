@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Portfolio Data</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Your Portfolio JSON</h1>
+        <p>Fill in the details below to generate your portfolio JSON file. You will be prompted to download the file upon submission.</p>
+
+        <form id="portfolioForm">
+            <fieldset>
+                <legend>Basic Information</legend>
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="head-line">Headline:</label>
+                <input type="text" id="head-line" name="head-line">
+
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address">
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone">
+
+                <label for="image-url">Profile Image URL:</label>
+                <input type="url" id="image-url" name="image-url" placeholder="https://example.com/image.jpg">
+
+                <label for="objective">Objective/Summary:</label>
+                <textarea id="objective" name="objective" rows="4"></textarea>
+            </fieldset>
+
+            <fieldset>
+                <legend>Experience Summary</legend>
+                <label for="total-exp">Total Experience (e.g., 5 years):</label>
+                <input type="text" id="total-exp" name="total-exp">
+
+                <label for="relevant-exp">Relevant Experience (e.g., 4.5 years):</label>
+                <input type="text" id="relevant-exp" name="relevant-exp">
+            </fieldset>
+
+            <fieldset id="employmentHistorySet">
+                <legend>Employment History</legend>
+                <div class="employment-entry">
+                    <h4>Organization 1</h4>
+                    <label>Organization Name:</label>
+                    <input type="text" name="emp_org_name[]">
+                    <label>Duration (e.g., 2021 - Present):</label>
+                    <input type="text" name="emp_org_duration[]">
+                    <div class="job-history-section">
+                        <h5>Job Role 1</h5>
+                        <label>Designation:</label>
+                        <input type="text" name="emp_job_designation_0[]">
+                        <label>Duration:</label>
+                        <input type="text" name="emp_job_duration_0[]">
+                        <label>Role:</label>
+                        <input type="text" name="emp_job_role_0[]">
+                        <label>Contribution:</label>
+                        <input type="text" name="emp_job_contribution_0[]">
+                        <label>Technologies Used (comma-separated):</label>
+                        <input type="text" name="emp_job_tech_0[]">
+                        <label>Core Responsibilities (one per line):</label>
+                        <textarea name="emp_job_responsibilities_0[]" rows="3"></textarea>
+                    </div>
+                    <button type="button" class="add-job-btn" data-org-index="0">Add Another Job Role to this Organization</button>
+                    <hr>
+                </div>
+                <button type="button" id="addEmploymentBtn">Add Another Organization</button>
+            </fieldset>
+
+            <fieldset>
+                <legend>Technical Skills</legend>
+                <p>Enter comma-separated values for each category.</p>
+                <label for="skill-version-control">Version Control:</label>
+                <input type="text" id="skill-version-control" name="skill_version-control">
+
+                <label for="skill-container-technology">Container Technology:</label>
+                <input type="text" id="skill-container-technology" name="skill_container-technology">
+
+                <label for="skill-ci-cd">CI/CD:</label>
+                <input type="text" id="skill-ci-cd" name="skill_ci-cd">
+
+                <label for="skill-code">Programming Languages/Frameworks:</label>
+                <input type="text" id="skill-code" name="skill_code">
+
+                <label for="skill-monitoring">Monitoring:</label>
+                <input type="text" id="skill-monitoring" name="skill_monitoring">
+
+                <label for="skill-iac">Infrastructure as Code (IaC):</label>
+                <input type="text" id="skill-iac" name="skill_iac">
+
+                <label for="skill-cloud">Cloud Platforms:</label>
+                <input type="text" id="skill-cloud" name="skill_cloud">
+            </fieldset>
+
+            <fieldset id="academicsSet">
+                <legend>Academics</legend>
+                <div class="academic-entry">
+                    <h4>Academic Qualification 1</h4>
+                    <label>Course/Degree:</label>
+                    <input type="text" name="acad_course[]">
+                    <label>Major/Specialization:</label>
+                    <input type="text" name="acad_major[]">
+                    <label>Institute:</label>
+                    <input type="text" name="acad_institute[]">
+                    <label>Passing Year:</label>
+                    <input type="number" name="acad_pass_year[]" min="1900" max="2100">
+                    <hr>
+                </div>
+                <button type="button" id="addAcademicBtn">Add Another Qualification</button>
+            </fieldset>
+
+            <fieldset id="languagesSet">
+                <legend>Languages</legend>
+                <div class="language-entry">
+                    <label>Language 1 (e.g., English Fluent):</label>
+                    <input type="text" name="lang[]">
+                </div>
+                <button type="button" id="addLanguageBtn">Add Another Language</button>
+            </fieldset>
+
+            <fieldset>
+                <legend>Online Presence</legend>
+                <label for="presence-github">GitHub URL:</label>
+                <input type="url" id="presence-github" name="presence_github">
+                <label for="presence-linkedin">LinkedIn URL:</label>
+                <input type="url" id="presence-linkedin" name="presence_linkedin">
+                <label for="presence-personal-website">Personal Website URL:</label>
+                <input type="url" id="presence-personal-website" name="presence_personal-website">
+                <!-- Add more common ones or a generic "other" field if needed -->
+            </fieldset>
+
+            <fieldset id="certificationsSet">
+                <legend>Certifications</legend>
+                <div class="certification-entry">
+                    <h4>Certification 1</h4>
+                    <label>Certification Name:</label>
+                    <input type="text" name="cert_name[]">
+                    <label>Issuing Organization:</label>
+                    <input type="text" name="cert_org[]">
+                    <label>Issue Month (MM):</label>
+                    <input type="number" name="cert_issue_month[]" min="1" max="12">
+                    <label>Issue Year (YYYY):</label>
+                    <input type="number" name="cert_issue_year[]" min="1900" max="2100">
+                    <label>Expiry Month (MM, optional):</label>
+                    <input type="number" name="cert_expiry_month[]" min="1" max="12">
+                    <label>Expiry Year (YYYY, optional):</label>
+                    <input type="number" name="cert_expiry_year[]" min="1900" max="2100">
+                    <label>Credential ID:</label>
+                    <input type="text" name="cert_id[]">
+                    <label>Credential URL:</label>
+                    <input type="url" name="cert_url[]">
+                    <hr>
+                </div>
+                <button type="button" id="addCertificationBtn">Add Another Certification</button>
+            </fieldset>
+
+            <button type="submit" id="generateJsonBtn">Generate and Download JSON</button>
+        </form>
+    </div>
+
+    <script src="js/create.js"></script>
+</body>
+</html>

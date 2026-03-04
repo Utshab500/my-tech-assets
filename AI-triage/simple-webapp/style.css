@@ -1,0 +1,95 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.calculator {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    width: 320px;
+    background-color: #333; /* Darker background for the calculator body */
+}
+
+#display {
+    width: calc(100% - 20px); /* Account for padding */
+    height: 70px;
+    font-size: 2.5em;
+    text-align: right;
+    padding: 10px;
+    border: none;
+    background-color: #444; /* Darker display background */
+    color: #fff; /* White text */
+    box-sizing: border-box;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+}
+
+.buttons button {
+    padding: 20px;
+    font-size: 1.5em;
+    border: none;
+    background-color: #555; /* Darker button background */
+    color: #fff; /* White text for buttons */
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.buttons button:hover {
+    background-color: #666;
+}
+
+.buttons button:active {
+    background-color: #777;
+}
+
+/* Specific styles for button types */
+.action-btn { /* C, DEL */
+    background-color: #d9534f; /* Reddish */
+}
+.action-btn:hover {
+    background-color: #c9302c;
+}
+.action-btn:active {
+    background-color: #ac2925;
+}
+
+.operator-btn { /* /, *, -, + */
+    background-color: #6c757d; /* Greyish */
+}
+.operator-btn:hover {
+    background-color: #5a6268;
+}
+.operator-btn:active {
+    background-color: #4e555b;
+}
+
+.equals-btn {
+    grid-row: span 2; /* Make equals button span two rows */
+    background-color: #f0ad4e; /* Orange */
+    color: white;
+}
+.equals-btn:hover {
+    background-color: #ec9c3d;
+}
+.equals-btn:active {
+    background-color: #e08b2c;
+}
+
+/* Make the zero button span two columns if desired, or style normally */
+/* For this layout, equals spans 2 rows, so 0 and . are normal */
+/* If you wanted 0 to be wider:
+#zero-btn {
+    grid-column: span 2;
+}
+*/
