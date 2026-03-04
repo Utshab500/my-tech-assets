@@ -1045,91 +1045,134 @@ function doShoot() {
 }
 
 // ── KEEPER AI ─────────────────────────────────────────────
-// keeperX is 0–1 across net width
-// normA:  -1=left, +1=right (from player perspective)
-// Zone determines save probability
+// Zone rules (primary) + spatial position check (secondary).
+//
+// Zone rules:
+//   RED    → keeper always saves   (moves at full speed toward arrow)
+//   YELLOW → keeper sometimes saves (moves slightly faster than RED, randomised)
+//   GREEN  → keeper CANNOT save    (moves toward arrow but zone overrides)
+//
+// Spatial rule (on top of zone logic):
+//   The keeper physically chases the ball X coordinate during flight.
+//   If keeper's centre reaches ball's arrival X → save (UNLESS zone=GREEN).
 
-let keeperSaveMode = false;    // will keeper save this shot?
-let keeperTargetX  = 0.5;
+let keeperZone     = 'RED';   // zone locked at shot time
+let keeperAnimRAF  = null;    // keeper dive animation frame
 
-function triggerKeeperAI(normA, pwr, zone, moveDur) {
+function triggerKeeperAI(normA, pwr, zone, flightDur) {
+  keeperZone = zone;
+  if (keeperAnimRAF) { cancelAnimationFrame(keeperAnimRAF); keeperAnimRAF = null; }
+
   const {netW, netH} = G;
-  const kw = netH*0.85*0.58; // keeper width
-  const netSpan = 1 - kw / netW;
+  const kw       = netH * 0.85 * 0.58;
+  const netSpan  = 1 - kw / netW;
 
-  // Target keeper position: align with shot direction
-  // normA=-1 (player shoots left) → keeper moves to left of net (keeperX→0)
-  // normA=+1 (player shoots right) → keeper moves to right (keeperX→1)
-  const idealKX = 0.5 + normA * 0.5;  // 0–1
+  // Where ball will arrive in 0-1 net space
+  // normA = sin(aimAngle): -1=full left, +1=full right
+  // Ball target X was already ray-cast; convert to 0-1 keeperX space:
+  // tx is absolute px; keeperX = (tx - kw/2 - netLeft) / (netW - kw)
+  const {netLeft} = G;
+  const ballArrivalKX = clamp(
+    (ballFlight ? (ballFlight.tx - netLeft - kw/2) / (netW - kw) : 0.5),
+    0, netSpan
+  );
 
-  // Save determination by zone
-  let willSave = false;
+  // Keeper speed as fraction of flightDur to reach target:
+  //   RED    → fast  (1.0 × flightDur, always reaches)
+  //   YELLOW → medium-fast (0.80–0.95 × flightDur, randomised each shot)
+  //   GREEN  → slow/wrong direction (0.35 × flightDur, can't reach)
+  let speedFraction, targetKX;
+
   if (zone === 'RED') {
-    // Always saves — keeper reaches ideal position perfectly
-    willSave = true;
-    keeperTargetX = clamp(idealKX, 0, netSpan);
+    speedFraction = 1.0;
+    targetKX      = ballArrivalKX; // go exactly to ball
   } else if (zone === 'YELLOW') {
-    // Sometimes saves (40% chance), moves a bit slower & less accurate
-    willSave = Math.random() < 0.40;
-    const accuracy = 0.55 + Math.random()*0.3; // 55–85% accurate
-    keeperTargetX = clamp(idealKX * accuracy + 0.5*(1-accuracy), 0, netSpan);
+    speedFraction = 0.80 + Math.random() * 0.15; // 0.80–0.95, random
+    // Slight positional noise so save isn't guaranteed even at max speed
+    const noise   = (Math.random() - 0.5) * 0.18;
+    targetKX      = clamp(ballArrivalKX + noise, 0, netSpan);
   } else {
-    // GREEN — keeper cannot save, moves wrong direction
-    willSave = false;
-    // Move slightly wrong way
-    keeperTargetX = clamp(0.5 - normA*0.25 + (Math.random()-0.5)*0.2, 0, netSpan);
+    // GREEN — keeper moves toward arrow direction but too slow to matter
+    speedFraction = 0.35;
+    targetKX      = clamp(0.5 + normA * 0.4, 0, netSpan); // goes toward arrow, not ball
   }
 
-  keeperSaveMode = willSave;
-
-  // Animate keeper to target
+  // Animate keeper sliding to target over flightDur * speedFraction ms
   const startKX = keeperX;
   const startT  = performance.now();
-  const speed   = zone==='RED' ? 1.0 : zone==='YELLOW' ? 0.75 : 0.45; // fraction of moveDur used
+  const moveDur = flightDur * speedFraction;
 
   function animKeeper(now) {
-    const t = Math.min((now-startT)/(moveDur*speed), 1);
-    const e = t<0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
-    keeperX = startKX + (keeperTargetX - startKX)*e;
-    if (t<1) requestAnimationFrame(animKeeper);
+    const t = Math.min((now - startT) / moveDur, 1);
+    const e = t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; // ease in-out
+    keeperX = startKX + (targetKX - startKX) * e;
+    if (t < 1) {
+      keeperAnimRAF = requestAnimationFrame(animKeeper);
+    } else {
+      keeperAnimRAF = null;
+    }
   }
-  requestAnimationFrame(animKeeper);
+  keeperAnimRAF = requestAnimationFrame(animKeeper);
 }
 
 function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
 
 // ── RESOLVE SHOT ──────────────────────────────────────────
 function resolveShot() {
-  const {tx, ty, lockedPwr, zone, aimedAtGoal, normA, kSnapshot} = ballFlight;
+  const {tx, ty, zone, aimedAtGoal} = ballFlight;
   ballFlight = null;
 
-  const {netLeft,netRight,netTop,netBot,netH,netW} = G;
-  const inside = tx>=netLeft && tx<=netRight && ty>=netTop && ty<=netBot;
+  const {netLeft, netH, netW} = G;
 
-  if (!inside || !aimedAtGoal) {
-    // Ball outside goal
+  // ── Step 1: Was the arrow pointing inside the goal? ──
+  if (!aimedAtGoal) {
     misses++; updateHUD();
-    flashResult('MISS! 😬','miss-c');
-    setTimeout(resetRound,1500);
+    flashResult('MISS! 😬', 'miss-c');
+    setTimeout(resetRound, 1500);
     return;
   }
 
-  // Ball aimed at goal — check keeper save
-  if (keeperSaveMode) {
-    // SAVED
-    misses++; updateHUD();
-    flashResult('SAVED! 🧤','save-c');
-    setTimeout(resetRound,1500);
+  // ── Step 2: Zone rule (primary) ──────────────────────
+  // GREEN → keeper CANNOT save regardless of position.
+  if (zone === 'GREEN') {
+    goals++; updateHUD();
+    flashResult('GOAL! 🎉', 'goal-c');
+    playCheer(); spawnConfetti(); ripplePhase = 0;
+    setTimeout(resetRound, 1600);
     return;
   }
 
-  // GOAL!
+  // ── Step 3: Spatial position check ───────────────────
+  // Check if keeper's centre is within reach of ball arrival X.
+  // keeperX is 0-1 across (netW - kw); convert to absolute px centre.
+  const kh = netH * 0.85;
+  const kw = kh * 0.58;
+  const keeperCentreX = netLeft + keeperX * (netW - kw) + kw / 2;
+  const reachRadius   = kw * 0.6; // keeper can block within this px distance
+  const keeperReaches = Math.abs(keeperCentreX - tx) <= reachRadius;
+
+  // ── Step 4: Zone + spatial combined ──────────────────
+  // RED    → always saves (zone rule alone, no spatial needed)
+  // YELLOW → saves only if keeper physically reaches ball (spatial check)
+  let saved = false;
+  if (zone === 'RED') {
+    saved = true; // always
+  } else if (zone === 'YELLOW') {
+    saved = keeperReaches; // random outcome baked into animation speed
+  }
+
+  if (saved) {
+    misses++; updateHUD();
+    flashResult('SAVED! 🧤', 'save-c');
+    setTimeout(resetRound, 1500);
+    return;
+  }
+
+  // ── GOAL! ─────────────────────────────────────────────
   goals++; updateHUD();
-  flashResult('GOAL! 🎉','goal-c');
-  playCheer();
-  spawnConfetti();
-  ripplePhase = 0;
-  setTimeout(resetRound,1600);
+  flashResult('GOAL! 🎉', 'goal-c');
+  playCheer(); spawnConfetti(); ripplePhase = 0;
+  setTimeout(resetRound, 1600);
 }
 
 // ── RESET ─────────────────────────────────────────────────
@@ -1137,7 +1180,8 @@ function resetRound() {
   isShooting   = false;
   ballFlight   = null;
   arrowVisible = false;
-  keeperSaveMode = false;
+  keeperZone   = 'RED';
+  if (keeperAnimRAF) { cancelAnimationFrame(keeperAnimRAF); keeperAnimRAF = null; }
   hintEl.style.opacity = '1';
   hintEl.textContent   = '⚽ Click & drag the ball to aim';
   startKeeperPatrol();
