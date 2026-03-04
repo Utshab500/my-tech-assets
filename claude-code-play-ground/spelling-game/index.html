@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spell It Right</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sky: #e8f4fd;
+    --ocean: #1a73e8;
+    --coral: #ff6b6b;
+    --mint: #42c8a0;
+    --sun: #ffd93d;
+    --lavender: #b39ddb;
+    --ink: #1a1a2e;
+    --card: #ffffff;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--sky);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(66,200,160,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(26,115,232,0.12) 0%, transparent 40%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: dropIn 0.6s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    color: var(--ocean);
+    letter-spacing: 1px;
+    text-shadow: 3px 3px 0 rgba(26,115,232,0.15);
+  }
+
+  header p {
+    font-size: 1rem;
+    color: #607d8b;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* Score bar */
+  .scorebar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    animation: dropIn 0.7s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .chip {
+    background: white;
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .chip .label { color: #90a4ae; font-weight: 600; }
+  .chip .val { color: var(--ink); }
+  .chip.streak .val { color: var(--coral); }
+  .chip.score .val { color: var(--ocean); }
+
+  /* Word card */
+  .card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 36px 40px;
+    width: 100%;
+    max-width: 540px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.04);
+    animation: dropIn 0.5s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--ocean), var(--mint), var(--sun));
+    border-radius: 24px 24px 0 0;
+  }
+
+  .hint-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #b0bec5;
+    margin-bottom: 10px;
+  }
+
+  .definition {
+    font-size: 1.15rem;
+    color: var(--ink);
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+
+  .category-tag {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #388e3c;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 3px 12px;
+    border-radius: 50px;
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+
+  /* Letter boxes */
+  .letter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  .letter-box {
+    width: 44px;
+    height: 52px;
+    border: 2.5px solid #cfd8dc;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--ink);
+    background: #fafafa;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    position: relative;
+  }
+
+  .letter-box.active {
+    border-color: var(--ocean);
+    background: #e8f4fd;
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
+  }
+
+  .letter-box.filled { border-color: var(--ocean); background: white; }
+  .letter-box.correct { border-color: var(--mint); background: #e8faf5; color: var(--mint); animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1); }
+  .letter-box.wrong { border-color: var(--coral); background: #fff0f0; color: var(--coral); animation: shake 0.4s; }
+
+  .letter-box.space-box {
+    border: none;
+    background: transparent;
+    width: 16px;
+  }
+
+  /* Input */
+  .input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .typing-input {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    padding: 12px 20px;
+    border: 2.5px solid #cfd8dc;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    outline: none;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fafafa;
+    text-transform: uppercase;
+  }
+
+  .typing-input:focus {
+    border-color: var(--ocean);
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
+    background: white;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 11px 24px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
+  .btn:active { transform: scale(0.96); }
+
+  .btn-primary { background: var(--ocean); color: white; }
+  .btn-hint { background: var(--sun); color: #5d4e00; }
+  .btn-skip { background: #eceff1; color: #607d8b; }
+  .btn-speak { background: var(--lavender); color: white; font-size: 1.1rem; padding: 11px 18px; }
+  .btn:disabled { opacity: 0.45; pointer-events: none; }
+
+  /* Hint used dots */
+  .hint-dots {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .hdot { width: 8px; height: 8px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s; }
+  .hdot.used { background: var(--sun); }
+
+  /* Feedback overlay */
+  .feedback {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .feedback-msg {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3rem;
+    padding: 20px 44px;
+    border-radius: 24px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+    pointer-events: none;
+  }
+
+  .feedback-msg.show { opacity: 1; transform: scale(1); }
+  .feedback-msg.correct-msg { background: var(--mint); color: white; }
+  .feedback-msg.wrong-msg { background: var(--coral); color: white; }
+
+  /* Progress bar */
+  .progress-wrap {
+    width: 100%;
+    max-width: 540px;
+    margin-bottom: 16px;
+    animation: dropIn 0.65s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #90a4ae;
+    margin-bottom: 6px;
+  }
+
+  .progress-bar-bg {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 50px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ocean), var(--mint));
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  /* Finish screen */
+  .finish-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding: 20px 0;
+  }
+
+  .finish-screen.active { display: flex; }
+
+  .finish-emoji { font-size: 5rem; animation: bounce 1s infinite alternate; }
+
+  .finish-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: var(--ocean);
+  }
+
+  .finish-sub { color: #607d8b; font-size: 1.05rem; font-weight: 600; }
+
+  .result-grid {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .result-chip {
+    background: white;
+    border-radius: 16px;
+    padding: 14px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+
+  .result-chip .big { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--ink); }
+  .result-chip .small { font-size: 0.8rem; font-weight: 700; color: #90a4ae; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Missed words */
+  .missed-list {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    text-align: left;
+  }
+
+  .missed-list h3 { font-size: 0.85rem; font-weight: 800; color: #90a4ae; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+  .missed-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.95rem; }
+  .missed-item .word { font-weight: 800; color: var(--coral); font-family: 'Fredoka One', cursive; letter-spacing: 1px; }
+  .missed-item .def { color: #90a4ae; font-size: 0.85rem; max-width: 60%; text-align: right; }
+
+  /* Animations */
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+
+  @keyframes popIn {
+    0%   { transform: scale(0.7); }
+    60%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+  }
+
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-14px); }
+  }
+
+  /* Difficulty selector */
+  .diff-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    animation: dropIn 0.7s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .diff-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 7px 18px;
+    border: 2.5px solid #cfd8dc;
+    border-radius: 50px;
+    cursor: pointer;
+    background: white;
+    color: #90a4ae;
+    transition: all 0.18s;
+  }
+
+  .diff-btn.active { border-color: var(--ocean); background: var(--ocean); color: white; }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .letter-box { width: 36px; height: 44px; font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>✏️ Spell It Right</h1>
+  <p>Type the word that matches the clue</p>
+</header>
+
+<div class="scorebar">
+  <div class="chip score"><span class="label">Score</span><span class="val" id="scoreVal">0</span></div>
+  <div class="chip streak"><span class="label">🔥 Streak</span><span class="val" id="streakVal">0</span></div>
+  <div class="chip"><span class="label">Best</span><span class="val" id="bestVal">0</span></div>
+</div>
+
+<div class="diff-row">
+  <button class="diff-btn active" onclick="setDiff('easy')">Easy</button>
+  <button class="diff-btn" onclick="setDiff('medium')">Medium</button>
+  <button class="diff-btn" onclick="setDiff('hard')">Hard</button>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span id="progLabel">Word 1 of 10</span>
+    <span id="progPct">0%</span>
+  </div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progBar" style="width:0%"></div></div>
+</div>
+
+<div class="card" id="gameCard">
+  <div class="hint-label">Definition</div>
+  <div class="definition" id="definition">Loading…</div>
+  <div class="category-tag" id="categoryTag">—</div>
+
+  <div class="letter-row" id="letterRow"></div>
+
+  <div class="input-section">
+    <div class="btn-row">
+      <button class="btn btn-speak" id="speakBtn" onclick="speakWord()" title="Hear the word">🔊</button>
+    </div>
+    <input class="typing-input" id="wordInput" maxlength="30" placeholder="Type here…" autocomplete="off" autocorrect="off" spellcheck="false" />
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="checkAnswer()">Check ✓</button>
+      <button class="btn btn-hint" id="hintBtn" onclick="useHint()">Hint 💡</button>
+      <button class="btn btn-skip" onclick="skipWord()">Skip →</button>
+    </div>
+    <div class="hint-dots" id="hintDots"></div>
+  </div>
+</div>
+
+<!-- Finish screen inside a card-like wrapper -->
+<div class="card finish-screen" id="finishScreen">
+  <div class="finish-emoji" id="finishEmoji">🎉</div>
+  <div class="finish-title" id="finishTitle">Round Complete!</div>
+  <div class="finish-sub" id="finishSub">Here's how you did:</div>
+  <div class="result-grid">
+    <div class="result-chip"><div class="big" id="resScore">0</div><div class="small">Score</div></div>
+    <div class="result-chip"><div class="big" id="resCorrect">0</div><div class="small">Correct</div></div>
+    <div class="result-chip"><div class="big" id="resStreak">0</div><div class="small">Best Streak</div></div>
+  </div>
+  <div class="missed-list" id="missedList" style="display:none">
+    <h3>Words to Practice</h3>
+    <div id="missedItems"></div>
+  </div>
+  <button class="btn btn-primary" onclick="restartGame()" style="margin-top:8px">Play Again 🔄</button>
+</div>
+
+<div class="feedback" id="feedback">
+  <div class="feedback-msg" id="feedbackMsg"></div>
+</div>
+
+<script>
+// ───────── WORD BANKS ─────────
+const WORDS = {
+  easy: [
+    { word: "CAT",     def: "A furry pet that meows",               cat: "Animals"  },
+    { word: "SUN",     def: "The bright star in our sky",           cat: "Nature"   },
+    { word: "BOOK",    def: "Sheets of paper with a story",         cat: "Objects"  },
+    { word: "JUMP",    def: "To leap off the ground",               cat: "Actions"  },
+    { word: "BLUE",    def: "The color of a clear sky",             cat: "Colors"   },
+    { word: "FROG",    def: "A green amphibian that hops",          cat: "Animals"  },
+    { word: "TREE",    def: "A tall plant with leaves and bark",    cat: "Nature"   },
+    { word: "MILK",    def: "A white drink from cows",              cat: "Food"     },
+    { word: "CAKE",    def: "A sweet baked birthday treat",         cat: "Food"     },
+    { word: "RAIN",    def: "Water falling from clouds",            cat: "Weather"  },
+    { word: "BIRD",    def: "A feathered creature that flies",      cat: "Animals"  },
+    { word: "STAR",    def: "A bright light in the night sky",      cat: "Nature"   },
+  ],
+  medium: [
+    { word: "BRIDGE",    def: "A structure spanning a river or gap",          cat: "Construction" },
+    { word: "JUNGLE",    def: "A dense tropical forest",                      cat: "Nature"       },
+    { word: "MARKET",    def: "A place where goods are bought and sold",      cat: "Places"       },
+    { word: "PLANET",    def: "A large body orbiting a star",                 cat: "Science"      },
+    { word: "FROZEN",    def: "Turned to ice; extremely cold",                cat: "States"       },
+    { word: "CANDLE",    def: "A wax stick with a wick that gives light",     cat: "Objects"      },
+    { word: "SHADOW",    def: "A dark shape made by blocking light",          cat: "Science"      },
+    { word: "FOREST",    def: "A large area covered in trees",                cat: "Nature"       },
+    { word: "CASTLE",    def: "A large medieval fortified building",          cat: "Structures"   },
+    { word: "HELMET",    def: "Protective headgear worn for safety",          cat: "Gear"         },
+    { word: "DESERT",    def: "A hot, dry land with little rainfall",         cat: "Geography"    },
+    { word: "MIRROR",    def: "A reflective surface showing your image",      cat: "Objects"      },
+  ],
+  hard: [
+    { word: "ARCHIPELAGO", def: "A group of islands clustered together",           cat: "Geography"  },
+    { word: "LUMINOUS",    def: "Emitting or reflecting bright light",             cat: "Adjectives" },
+    { word: "SYMPHONY",    def: "An elaborate musical composition for orchestra",  cat: "Music"      },
+    { word: "AMBIGUOUS",   def: "Open to more than one interpretation",            cat: "Language"   },
+    { word: "HIBERNATE",   def: "To spend winter in a dormant state",              cat: "Science"    },
+    { word: "LABYRINTH",   def: "A complex maze-like structure",                   cat: "Structures" },
+    { word: "ELOQUENT",    def: "Fluent, persuasive, and well-expressed",          cat: "Language"   },
+    { word: "CATASTROPHE", def: "A sudden and widespread disaster",                cat: "Events"     },
+    { word: "PHOSPHORUS",  def: "A chemical element that glows in the dark",       cat: "Science"    },
+    { word: "ENTREPRENEUR",def: "Someone who starts and runs a new business",      cat: "Business"   },
+    { word: "METAMORPHOSIS",def:"A dramatic transformation in form or nature",     cat: "Science"    },
+    { word: "EXQUISITE",   def: "Extremely beautiful and delicate",                cat: "Adjectives" },
+  ]
+};
+
+// ───────── STATE ─────────
+let difficulty = 'easy';
+let queue = [];
+let currentWord = null;
+let currentIdx = 0;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let hintsUsed = 0;
+const MAX_HINTS = 3;
+let revealed = [];
+let missed = [];
+let roundSize = 10;
+let answered = 0;
+let correctCount = 0;
+let roundStreakBest = 0;
+
+// ───────── INIT ─────────
+function setDiff(d) {
+  difficulty = d;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().startsWith(d)));
+  restartGame();
+}
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function startGame() {
+  const pool = shuffle(WORDS[difficulty]);
+  queue = pool.slice(0, roundSize);
+  currentIdx = 0;
+  score = 0; streak = 0; hintsUsed = 0;
+  missed = []; answered = 0; correctCount = 0; roundStreakBest = 0;
+  updateScore();
+  document.getElementById('finishScreen').classList.remove('active');
+  document.getElementById('gameCard').style.display = '';
+  loadWord();
+}
+
+function restartGame() { startGame(); }
+
+function loadWord() {
+  if (currentIdx >= queue.length) { showFinish(); return; }
+  currentWord = queue[currentIdx];
+  hintsUsed = 0;
+  revealed = Array(currentWord.word.length).fill(false);
+
+  document.getElementById('definition').textContent = currentWord.def;
+  document.getElementById('categoryTag').textContent = currentWord.cat;
+  document.getElementById('wordInput').value = '';
+  document.getElementById('wordInput').focus();
+
+  renderLetterBoxes();
+  renderHintDots();
+  updateProgress();
+}
+
+function renderLetterBoxes() {
+  const row = document.getElementById('letterRow');
+  row.innerHTML = '';
+  currentWord.word.split('').forEach((ch, i) => {
+    if (ch === ' ') {
+      const sp = document.createElement('div');
+      sp.className = 'letter-box space-box';
+      row.appendChild(sp);
+      return;
+    }
+    const box = document.createElement('div');
+    box.className = 'letter-box';
+    box.id = `lb_${i}`;
+    if (revealed[i]) { box.textContent = ch; box.classList.add('filled'); }
+    row.appendChild(box);
+  });
+  updateBoxes('');
+}
+
+function updateBoxes(typed) {
+  const word = currentWord.word;
+  let ti = 0;
+  for (let i = 0; i < word.length; i++) {
+    if (word[i] === ' ') continue;
+    const box = document.getElementById(`lb_${i}`);
+    if (!box) continue;
+    if (revealed[i]) { box.textContent = word[i]; box.classList.add('filled', 'correct'); continue; }
+    if (ti < typed.length) {
+      box.textContent = typed[ti].toUpperCase();
+      box.className = 'letter-box filled';
+    } else {
+      box.textContent = '';
+      box.className = 'letter-box' + (ti === typed.length ? ' active' : '');
+    }
+    ti++;
+  }
+}
+
+document.getElementById('wordInput').addEventListener('input', function() {
+  updateBoxes(this.value.replace(/\s/g,''));
+});
+
+document.getElementById('wordInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkAnswer();
+});
+
+// ───────── CHECK ─────────
+function checkAnswer() {
+  const input = document.getElementById('wordInput').value.trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!input) return;
+  const correct = input === currentWord.word;
+
+  if (correct) {
+    const pts = 10 + (MAX_HINTS - hintsUsed) * 5;
+    score += pts;
+    streak++;
+    correctCount++;
+    if (streak > bestStreak) bestStreak = streak;
+    if (streak > roundStreakBest) roundStreakBest = streak;
+    revealAll('correct');
+    showFeedback(getCorrectMsg(), 'correct-msg');
+    updateScore();
+    setTimeout(() => { currentIdx++; loadWord(); }, 1000);
+  } else {
+    streak = 0;
+    updateScore();
+    shakeBoxes();
+    showFeedback('Try again!', 'wrong-msg');
+    document.getElementById('wordInput').value = '';
+    document.getElementById('wordInput').focus();
+    updateBoxes('');
+  }
+}
+
+function skipWord() {
+  missed.push(currentWord);
+  streak = 0;
+  updateScore();
+  answered++;
+  revealAll('wrong');
+  showFeedback(currentWord.word, 'wrong-msg');
+  setTimeout(() => { currentIdx++; loadWord(); }, 1100);
+}
+
+function getCorrectMsg() {
+  const msgs = ['Correct! 🎉','Nailed it! ⭐','Brilliant! 🌟','You got it! 🎊','Perfect! ✨','Amazing! 🔥'];
+  if (streak >= 3) return `${streak}× Streak! 🔥`;
+  return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+// ───────── HINT ─────────
+function useHint() {
+  if (hintsUsed >= MAX_HINTS) return;
+  const unrevealed = currentWord.word.split('').map((c,i) => ({ c, i }))
+    .filter(({ c, i }) => c !== ' ' && !revealed[i]);
+  if (!unrevealed.length) return;
+  const pick = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+  revealed[pick.i] = true;
+  hintsUsed++;
+  renderHintDots();
+  renderLetterBoxes();
+  updateBoxes(document.getElementById('wordInput').value.replace(/\s/g,''));
+  document.getElementById('hintBtn').disabled = hintsUsed >= MAX_HINTS;
+}
+
+function renderHintDots() {
+  const d = document.getElementById('hintDots');
+  d.innerHTML = '';
+  for (let i = 0; i < MAX_HINTS; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'hdot' + (i < hintsUsed ? ' used' : '');
+    d.appendChild(dot);
+  }
+}
+
+// ───────── SPEAK ─────────
+function speakWord() {
+  if (!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(currentWord.word.toLowerCase());
+  u.rate = 0.85; u.pitch = 1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+// ───────── HELPERS ─────────
+function revealAll(state) {
+  currentWord.word.split('').forEach((c, i) => {
+    const box = document.getElementById(`lb_${i}`);
+    if (!box) return;
+    box.textContent = c;
+    box.className = 'letter-box ' + (state === 'correct' ? 'correct' : 'wrong');
+  });
+}
+
+function shakeBoxes() {
+  document.querySelectorAll('.letter-box.filled').forEach(b => {
+    b.classList.remove('wrong');
+    void b.offsetWidth;
+    b.classList.add('wrong');
+  });
+}
+
+function showFeedback(msg, cls) {
+  const el = document.getElementById('feedbackMsg');
+  el.textContent = msg;
+  el.className = 'feedback-msg ' + cls + ' show';
+  setTimeout(() => el.className = 'feedback-msg', 900);
+}
+
+function updateScore() {
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('streakVal').textContent = streak;
+  document.getElementById('bestVal').textContent = bestStreak;
+}
+
+function updateProgress() {
+  const done = currentIdx;
+  const pct = Math.round((done / roundSize) * 100);
+  document.getElementById('progLabel').textContent = `Word ${Math.min(currentIdx+1, roundSize)} of ${roundSize}`;
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progBar').style.width = pct + '%';
+}
+
+// ───────── FINISH ─────────
+function showFinish() {
+  document.getElementById('gameCard').style.display = 'none';
+  const fs = document.getElementById('finishScreen');
+  fs.classList.add('active');
+
+  const pct = Math.round((correctCount / roundSize) * 100);
+  let emoji = '😊', title = 'Good job!', sub = 'Keep practicing!';
+  if (pct === 100) { emoji = '🏆'; title = 'Perfect Score!'; sub = 'You spelled every word correctly!'; }
+  else if (pct >= 80) { emoji = '🎉'; title = 'Excellent!'; sub = `${pct}% correct — impressive!`; }
+  else if (pct >= 60) { emoji = '👍'; title = 'Good Try!'; sub = `${pct}% correct — getting better!`; }
+  else { emoji = '📚'; title = 'Keep Studying!'; sub = `${pct}% correct — practice makes perfect!`; }
+
+  document.getElementById('finishEmoji').textContent = emoji;
+  document.getElementById('finishTitle').textContent = title;
+  document.getElementById('finishSub').textContent = sub;
+  document.getElementById('resScore').textContent = score;
+  document.getElementById('resCorrect').textContent = `${correctCount}/${roundSize}`;
+  document.getElementById('resStreak').textContent = roundStreakBest;
+
+  if (missed.length) {
+    const ml = document.getElementById('missedList');
+    ml.style.display = '';
+    const mi = document.getElementById('missedItems');
+    mi.innerHTML = missed.map(w =>
+      `<div class="missed-item"><span class="word">${w.word}</span><span class="def">${w.def}</span></div>`
+    ).join('');
+  }
+}
+
+// ───────── START ─────────
+startGame();
+</script>
+</body>
+</html>
