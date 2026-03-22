@@ -783,16 +783,54 @@
   </div>
 </div>
 
-<!-- Hidden YouTube autoplay — completely invisible, no controls -->
+<!-- Hidden YouTube autoplay — starts muted (browser allows this), unmutes on first tap -->
 <div class="yt-hidden">
   <iframe
-    src="https://www.youtube.com/embed/tsf4TMl9AcQ?autoplay=1&loop=1&playlist=tsf4TMl9AcQ&controls=0&showinfo=0&modestbranding=1&mute=0&enablejsapi=1"
+    id="ytPlayer"
+    src="https://www.youtube.com/embed/tsf4TMl9AcQ?autoplay=1&loop=1&playlist=tsf4TMl9AcQ&controls=0&showinfo=0&modestbranding=1&mute=1&enablejsapi=1&origin=*"
     title="Background Music"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen
   ></iframe>
 </div>
+
+<script>
+  // YouTube IFrame API — unmute on first user interaction
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+
+  var player;
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('ytPlayer', {
+      events: {
+        'onReady': function(event) {
+          event.target.setVolume(40);
+          // Attempt unmute immediately (works if user already interacted)
+          event.target.unMute();
+        }
+      }
+    });
+  }
+
+  // On first click/touch anywhere, unmute the player
+  var hasUnmuted = false;
+  function tryUnmute() {
+    if (!hasUnmuted && player && player.unMute) {
+      player.unMute();
+      player.setVolume(40);
+      hasUnmuted = true;
+      // Clean up listeners
+      document.removeEventListener('click', tryUnmute);
+      document.removeEventListener('touchstart', tryUnmute);
+      document.removeEventListener('scroll', tryUnmute);
+    }
+  }
+  document.addEventListener('click', tryUnmute);
+  document.addEventListener('touchstart', tryUnmute);
+  document.addEventListener('scroll', tryUnmute);
+</script>
 
 </body>
 </html>
