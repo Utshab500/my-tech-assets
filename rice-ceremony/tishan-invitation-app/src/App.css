@@ -1,0 +1,910 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Great+Vibes&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --deep-blue: #0a1628;
+  --royal-blue: #1a3a6b;
+  --krishna-blue: #1e56a0;
+  --sky-blue: #4a90d9;
+  --light-blue: #a8d0f0;
+  --pale-blue: #d4e8f7;
+  --gold: #d4a843;
+  --bright-gold: #f0c65a;
+  --warm-gold: #c49730;
+  --cream: #fdf8ef;
+  --peacock-green: #1a7a5a;
+  --peacock-teal: #1a8a8a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, var(--deep-blue) 0%, var(--royal-blue) 50%, var(--deep-blue) 100%);
+  min-height: 100vh;
+}
+
+.page-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.card-wrapper {
+  width: 700px;
+  max-width: 100%;
+  position: relative;
+}
+
+.card {
+  background: linear-gradient(180deg, #0d1f3c 0%, #122952 15%, #163670 40%, #122952 70%, #0d1f3c 100%);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px rgba(26, 86, 160, 0.4),
+    0 0 120px rgba(212, 168, 67, 0.15),
+    inset 0 0 80px rgba(0, 0, 0, 0.3);
+}
+
+.gold-border-1 {
+  position: absolute;
+  inset: 8px;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.gold-border-2 {
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(212, 168, 67, 0.4);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.peacock-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.08;
+  z-index: 0;
+}
+
+.peacock-bg-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--bright-gold);
+  border-radius: 50%;
+  opacity: 0;
+  animation: sparkle 4s ease-in-out infinite;
+}
+
+.particle-1 { left: 10%; top: 15%; animation-delay: 0s; }
+.particle-2 { left: 25%; top: 40%; animation-delay: 0.8s; }
+.particle-3 { left: 45%; top: 20%; animation-delay: 1.6s; }
+.particle-4 { left: 65%; top: 55%; animation-delay: 2.4s; }
+.particle-5 { left: 80%; top: 30%; animation-delay: 0.4s; }
+.particle-6 { left: 15%; top: 70%; animation-delay: 1.2s; }
+.particle-7 { left: 50%; top: 80%; animation-delay: 2s; }
+.particle-8 { left: 85%; top: 75%; animation-delay: 2.8s; }
+.particle-9 { left: 35%; top: 90%; animation-delay: 3.2s; }
+.particle-10 { left: 70%; top: 10%; animation-delay: 1.8s; }
+.particle-11 { left: 90%; top: 50%; animation-delay: 0.6s; }
+.particle-12 { left: 5%; top: 50%; animation-delay: 3s; }
+
+.corner {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  z-index: 3;
+}
+
+.corner-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.corner-tl {
+  top: 16px;
+  left: 16px;
+}
+
+.corner-tr {
+  top: 16px;
+  right: 16px;
+  transform: scaleX(-1);
+}
+
+.corner-bl {
+  bottom: 16px;
+  left: 16px;
+  transform: scaleY(-1);
+}
+
+.corner-br {
+  bottom: 16px;
+  right: 16px;
+  transform: scale(-1, -1);
+}
+
+.card-inner {
+  padding: 50px 40px 45px;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.fade-in {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+.delay-7 { animation-delay: 0.7s; }
+.delay-8 { animation-delay: 0.8s; }
+.delay-9 { animation-delay: 0.9s; }
+.delay-10 { animation-delay: 1s; }
+.delay-11 { animation-delay: 1.1s; }
+.delay-12 { animation-delay: 1.2s; }
+
+.om-section {
+  margin-bottom: 8px;
+}
+
+.om-symbol {
+  font-size: 36px;
+  color: var(--bright-gold);
+  text-shadow: 0 0 20px rgba(240, 198, 90, 0.5);
+  letter-spacing: 4px;
+}
+
+.shubh-label {
+  margin-bottom: 6px;
+}
+
+.shubh-label span {
+  font-family: 'Noto Sans Bengali', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--bright-gold);
+  letter-spacing: 3px;
+}
+
+.title-section {
+  margin-bottom: 10px;
+}
+
+.title-main {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--bright-gold);
+  text-shadow: 0 0 30px rgba(240, 198, 90, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 4px;
+  line-height: 1.2;
+}
+
+.title-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--light-blue);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.feather-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18px 0;
+  gap: 12px;
+}
+
+.feather-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.feather-eye {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.krishna-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0 14px;
+  gap: 20px;
+}
+
+.krishna-feather {
+  width: 60px;
+  height: 80px;
+}
+
+.krishna-main {
+  width: 100px;
+  height: 100px;
+}
+
+.baby-name-section {
+  margin-bottom: 10px;
+}
+
+.baby-name-label {
+  font-size: 13px;
+  color: var(--light-blue);
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  font-weight: 300;
+  margin-bottom: 6px;
+}
+
+.baby-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 44px;
+  font-weight: 900;
+  background: linear-gradient(180deg, #f7e5a0 0%, #d4a843 40%, #c49730 70%, #f0c65a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 6px;
+  line-height: 1.3;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+.invitation-text {
+  margin: 18px 20px;
+  line-height: 1.8;
+}
+
+.dear-guest {
+  font-family: 'Great Vibes', cursive;
+  font-size: 30px;
+  color: var(--bright-gold);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.invitation-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16.5px;
+  font-weight: 400;
+  color: var(--pale-blue);
+  line-height: 1.85;
+  font-style: italic;
+}
+
+.highlight {
+  color: var(--bright-gold);
+  font-weight: 600;
+  font-style: normal;
+}
+
+.small-divider {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto;
+}
+
+.parents-section {
+  margin: 22px 0 18px;
+}
+
+.parents-label {
+  font-size: 12px;
+  color: var(--sky-blue);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 300;
+  margin-bottom: 10px;
+}
+
+.parent-names {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.parent {
+  text-align: center;
+}
+
+.parent-role {
+  font-size: 11px;
+  color: rgba(168, 208, 240, 0.6);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 300;
+  margin-bottom: 3px;
+}
+
+.parent-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--cream);
+  letter-spacing: 2px;
+}
+
+.ampersand {
+  font-family: 'Great Vibes', cursive;
+  font-size: 32px;
+  color: var(--gold);
+}
+
+.details-section {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin: 22px 0 18px;
+  flex-wrap: wrap;
+}
+
+.detail-block {
+  text-align: center;
+}
+
+.detail-icon {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 6px;
+  display: block;
+}
+
+.detail-label {
+  font-size: 10px;
+  color: rgba(168, 208, 240, 0.5);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 300;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--cream);
+  letter-spacing: 1px;
+  line-height: 1.5;
+}
+
+.footer-section {
+  margin-top: 14px;
+}
+
+.small-peacock-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0 10px;
+  gap: 12px;
+}
+
+.blessing {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.blessing-text {
+  font-family: 'Great Vibes', cursive;
+  font-size: 22px;
+  color: var(--bright-gold);
+  text-shadow: 0 0 20px rgba(240, 198, 90, 0.3);
+}
+
+.blessing-sub {
+  font-family: 'Noto Sans Bengali', sans-serif;
+  font-size: 13px;
+  color: var(--light-blue);
+  margin-top: 4px;
+  letter-spacing: 2px;
+}
+
+.yt-hidden {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translateY(-30px) scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 20px rgba(240, 198, 90, 0.3));
+  }
+
+  50% {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 40px rgba(240, 198, 90, 0.6));
+  }
+}
+
+@media (max-width: 768px) {
+  .page-wrap {
+    padding: 16px;
+  }
+
+  .card-inner {
+    padding: 42px 32px 38px;
+  }
+
+  .title-main {
+    font-size: 32px;
+    letter-spacing: 3px;
+  }
+
+  .title-sub {
+    font-size: 14px;
+    letter-spacing: 4px;
+  }
+
+  .baby-name {
+    font-size: 36px;
+    letter-spacing: 4px;
+  }
+
+  .baby-name-label {
+    font-size: 12px;
+    letter-spacing: 4px;
+  }
+
+  .dear-guest {
+    font-size: 26px;
+  }
+
+  .invitation-body {
+    font-size: 15.5px;
+  }
+
+  .invitation-text {
+    margin: 16px 12px;
+  }
+
+  .parent-name {
+    font-size: 20px;
+  }
+
+  .ampersand {
+    font-size: 28px;
+  }
+
+  .details-section {
+    gap: 40px;
+  }
+
+  .detail-value {
+    font-size: 17px;
+  }
+
+  .blessing-text {
+    font-size: 20px;
+  }
+
+  .corner {
+    width: 75px;
+    height: 75px;
+  }
+
+  .feather-eye {
+    width: 50px;
+    height: 50px;
+  }
+
+  .krishna-section {
+    gap: 16px;
+  }
+
+  .krishna-main {
+    width: 85px;
+    height: 85px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-wrap {
+    padding: 12px;
+  }
+
+  .card-inner {
+    padding: 36px 22px 32px;
+  }
+
+  .om-symbol {
+    font-size: 30px;
+  }
+
+  .shubh-label span {
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+
+  .title-main {
+    font-size: 26px;
+    letter-spacing: 2px;
+  }
+
+  .title-sub {
+    font-size: 13px;
+    letter-spacing: 4px;
+  }
+
+  .baby-name {
+    font-size: 30px;
+    letter-spacing: 3px;
+  }
+
+  .baby-name-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  .dear-guest {
+    font-size: 24px;
+  }
+
+  .invitation-body {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .invitation-text {
+    margin: 14px 6px;
+  }
+
+  .parent-names {
+    gap: 16px;
+  }
+
+  .parent-name {
+    font-size: 19px;
+    letter-spacing: 1px;
+  }
+
+  .parent-role {
+    font-size: 10px;
+  }
+
+  .ampersand {
+    font-size: 26px;
+  }
+
+  .parents-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  .details-section {
+    gap: 30px;
+  }
+
+  .detail-value {
+    font-size: 16px;
+  }
+
+  .detail-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+  }
+
+  .detail-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .blessing-text {
+    font-size: 19px;
+  }
+
+  .blessing-sub {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .corner {
+    width: 60px;
+    height: 60px;
+  }
+
+  .feather-eye {
+    width: 45px;
+    height: 45px;
+  }
+
+  .feather-divider {
+    margin: 14px 0;
+    gap: 8px;
+  }
+
+  .krishna-section {
+    gap: 12px;
+  }
+
+  .krishna-main {
+    width: 75px;
+    height: 75px;
+  }
+
+  .krishna-feather {
+    width: 45px;
+    height: 65px;
+  }
+
+  .small-divider {
+    width: 90px;
+  }
+
+  .gold-border-1 {
+    inset: 6px;
+  }
+
+  .gold-border-2 {
+    inset: 11px;
+  }
+}
+
+@media (max-width: 400px) {
+  .page-wrap {
+    padding: 8px;
+  }
+
+  .card-inner {
+    padding: 30px 16px 26px;
+  }
+
+  .om-symbol {
+    font-size: 26px;
+  }
+
+  .shubh-label span {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+
+  .title-main {
+    font-size: 21px;
+    letter-spacing: 1.5px;
+  }
+
+  .title-sub {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  .baby-name {
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+
+  .baby-name-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .dear-guest {
+    font-size: 22px;
+  }
+
+  .invitation-body {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .invitation-text {
+    margin: 12px 4px;
+  }
+
+  .parent-names {
+    gap: 10px;
+  }
+
+  .parent-name {
+    font-size: 17px;
+  }
+
+  .ampersand {
+    font-size: 22px;
+  }
+
+  .parents-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .details-section {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .detail-value {
+    font-size: 15px;
+  }
+
+  .detail-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+  }
+
+  .blessing-text {
+    font-size: 17px;
+  }
+
+  .blessing-sub {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .corner {
+    width: 45px;
+    height: 45px;
+  }
+
+  .corner-tl {
+    top: 10px;
+    left: 10px;
+  }
+
+  .corner-tr {
+    top: 10px;
+    right: 10px;
+  }
+
+  .corner-bl {
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .corner-br {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .feather-eye {
+    width: 38px;
+    height: 38px;
+  }
+
+  .feather-divider {
+    margin: 10px 0;
+    gap: 6px;
+  }
+
+  .krishna-section {
+    gap: 8px;
+    margin: 8px 0 12px;
+  }
+
+  .krishna-main {
+    width: 65px;
+    height: 65px;
+  }
+
+  .krishna-feather {
+    width: 35px;
+    height: 55px;
+  }
+
+  .small-divider {
+    width: 70px;
+  }
+
+  .gold-border-1 {
+    inset: 5px;
+    border-width: 1.5px;
+  }
+
+  .gold-border-2 {
+    inset: 9px;
+  }
+}
+
+@media (max-width: 340px) {
+  .page-wrap {
+    padding: 6px;
+  }
+
+  .card-inner {
+    padding: 26px 12px 22px;
+  }
+
+  .title-main {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .baby-name {
+    font-size: 20px;
+    letter-spacing: 1.5px;
+  }
+
+  .dear-guest {
+    font-size: 20px;
+  }
+
+  .invitation-body {
+    font-size: 13px;
+  }
+
+  .parent-name {
+    font-size: 16px;
+  }
+
+  .corner {
+    width: 36px;
+    height: 36px;
+  }
+
+  .krishna-main {
+    width: 55px;
+    height: 55px;
+  }
+
+  .krishna-feather {
+    width: 30px;
+    height: 45px;
+  }
+}
