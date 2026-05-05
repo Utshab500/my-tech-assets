@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/my-tech-assets/rice-ceremony/static/css/main.7f40e421.css",
-    "main.js": "/my-tech-assets/rice-ceremony/static/js/main.f43a478d.js",
+    "main.js": "/my-tech-assets/rice-ceremony/static/js/main.c39ca9c9.js",
     "index.html": "/my-tech-assets/rice-ceremony/index.html",
     "main.7f40e421.css.map": "/my-tech-assets/rice-ceremony/static/css/main.7f40e421.css.map",
-    "main.f43a478d.js.map": "/my-tech-assets/rice-ceremony/static/js/main.f43a478d.js.map"
+    "main.c39ca9c9.js.map": "/my-tech-assets/rice-ceremony/static/js/main.c39ca9c9.js.map"
   },
   "entrypoints": [
     "static/css/main.7f40e421.css",
-    "static/js/main.f43a478d.js"
+    "static/js/main.c39ca9c9.js"
   ]
 }

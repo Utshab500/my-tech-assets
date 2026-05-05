@@ -109,22 +109,7 @@ const DirectionsButton = () => {
 
   const openDirections = () => {
     const dest = encodeURIComponent(destination);
-    // Open the window synchronously inside the click handler so Safari's
-    // popup blocker doesn't kill it when window.open is called from an async callback.
-    const mapWindow = window.open('', '_blank');
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        ({ coords }) => {
-          mapWindow.location.href = `https://www.google.com/maps/dir/${coords.latitude},${coords.longitude}/${dest}`;
-        },
-        () => {
-          mapWindow.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-        }
-      );
-    } else {
-      mapWindow.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-    }
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, '_blank');
   };
 
   return (
