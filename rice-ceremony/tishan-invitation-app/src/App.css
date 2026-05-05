@@ -443,6 +443,15 @@ body {
   50%       { box-shadow: 0 0 16px rgba(212, 168, 67, 0.3); border-color: rgba(212, 168, 67, 0.75); }
 }
 
+.build-version {
+  text-align: center;
+  font-size: 10px;
+  color: rgba(168, 208, 240, 0.25);
+  letter-spacing: 2px;
+  padding-bottom: 10px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
 .footer-section {
   margin-top: 14px;
 }

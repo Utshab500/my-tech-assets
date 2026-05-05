@@ -425,6 +425,8 @@ function App() {
                   <div className="blessing-sub">আপনার উপস্থিতি আমাদের পরম আশীর্বাদ</div>
                 </div>
               </div>
+
+              <div className="build-version">v2.10</div>
             </div>
           </div>
         </div>
