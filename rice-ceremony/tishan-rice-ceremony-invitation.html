@@ -356,9 +356,60 @@
       print-color-adjust:exact;
     }
   }
+
+  /* Background music controls */
+  #yt-player{
+    position:fixed;
+    width:1px;height:1px;
+    top:-9999px;left:-9999px;
+    pointer-events:none;
+    opacity:0;
+  }
+  #sound-btn{
+    position:fixed;
+    bottom:24px;right:24px;
+    z-index:9999;
+    width:46px;height:46px;
+    border-radius:50%;
+    background:rgba(15,35,75,0.75);
+    border:1px solid rgba(201,168,76,0.4);
+    color:#c9a84c;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(8px);
+    transition:background 0.2s,border-color 0.2s,transform 0.15s;
+    box-shadow:0 2px 16px rgba(0,0,0,0.35);
+  }
+  #sound-btn:hover{
+    background:rgba(20,50,110,0.9);
+    border-color:rgba(201,168,76,0.7);
+    transform:scale(1.08);
+  }
+  #sound-btn svg{width:20px;height:20px;fill:currentColor}
 </style>
 </head>
 <body>
+
+<!-- Hidden YouTube background music player -->
+<iframe id="yt-player"
+  src="https://www.youtube.com/embed/tsf4TMl9AcQ?autoplay=1&mute=1&loop=1&playlist=tsf4TMl9AcQ&controls=0&disablekb=1&fs=0&iv_load_policy=3"
+  allow="autoplay"
+  tabindex="-1"
+  aria-hidden="true">
+</iframe>
+
+<!-- Sound toggle button -->
+<button id="sound-btn" title="Toggle music" aria-label="Toggle background music">
+  <!-- Muted icon (shown by default) -->
+  <svg id="icon-muted" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 18l1.99 2L21 18.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+  </svg>
+  <!-- Unmuted icon (hidden by default) -->
+  <svg id="icon-sound" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+  </svg>
+</button>
+
 <div class="card-wrapper">
 <div class="card">
 
@@ -590,5 +641,27 @@
   </div>
 </div>
 </div>
+
+<script>
+  (function(){
+    var muted = true;
+    var player = document.getElementById('yt-player');
+    var btn = document.getElementById('sound-btn');
+    var iconMuted = document.getElementById('icon-muted');
+    var iconSound = document.getElementById('icon-sound');
+
+    function setMute(m){
+      muted = m;
+      var src = player.src.replace(/[?&]mute=[01]/, '');
+      player.src = src + (src.includes('?') ? '&' : '?') + 'mute=' + (muted ? '1' : '0') +
+        '&autoplay=1&loop=1&playlist=tsf4TMl9AcQ&controls=0&disablekb=1&fs=0&iv_load_policy=3';
+      iconMuted.style.display = muted ? '' : 'none';
+      iconSound.style.display = muted ? 'none' : '';
+      btn.title = muted ? 'Unmute music' : 'Mute music';
+    }
+
+    btn.addEventListener('click', function(){ setMute(!muted); });
+  })();
+</script>
 </body>
 </html>
