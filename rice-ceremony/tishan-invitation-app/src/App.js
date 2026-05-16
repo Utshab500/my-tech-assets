@@ -184,7 +184,8 @@ const EnvelopeSplash = ({ onOpen }) => {
           <div className="env-flap" />
         </div>
         <div className={`env-hint${stage !== 'sealed' ? ' env-hint-gone' : ''}`}>
-          ✦ Tap to open your invitation ✦
+          ✦ Touch to open your invitation ✦
+          <div className="env-hint-bn">✦ আমন্ত্রণপত্র খুলতে স্পর্শ করুন ✦</div>
         </div>
       </div>
     </div>
@@ -426,7 +427,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="build-version">v2.10</div>
+              <div className="build-version">v2.11</div>
             </div>
           </div>
         </div>

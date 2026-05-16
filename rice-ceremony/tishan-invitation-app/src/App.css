@@ -752,6 +752,15 @@ body {
   animation: envHintPulse 2.2s ease-in-out infinite;
 }
 
+.env-hint-bn {
+  font-family: 'Noto Serif Bengali', 'Hind Siliguri', serif;
+  font-size: 0.95rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-top: 6px;
+}
+
 .env-hint.env-hint-gone {
   opacity: 0;
   animation: none;
