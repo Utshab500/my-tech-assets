@@ -404,6 +404,54 @@ body {
   line-height: 1.5;
 }
 
+.directions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid rgba(212, 168, 67, 0.55);
+  border-radius: 30px;
+  color: #d4a843;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s, color 0.25s;
+  box-shadow: 0 0 10px rgba(212, 168, 67, 0.1);
+  animation: directionsPulse 3s ease-in-out infinite;
+}
+
+.directions-btn:hover {
+  border-color: rgba(212, 168, 67, 0.95);
+  color: #f0c65a;
+  box-shadow: 0 0 18px rgba(212, 168, 67, 0.45), 0 0 40px rgba(212, 168, 67, 0.15);
+  transform: scale(1.05);
+  animation: none;
+}
+
+.directions-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+@keyframes directionsPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(212, 168, 67, 0.1); border-color: rgba(212, 168, 67, 0.45); }
+  50%       { box-shadow: 0 0 16px rgba(212, 168, 67, 0.3); border-color: rgba(212, 168, 67, 0.75); }
+}
+
+.build-version {
+  text-align: center;
+  font-size: 10px;
+  color: rgba(168, 208, 240, 0.25);
+  letter-spacing: 2px;
+  padding-bottom: 10px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
 .footer-section {
   margin-top: 14px;
 }
@@ -436,6 +484,295 @@ body {
   letter-spacing: 2px;
 }
 
+/* ===== ENVELOPE SPLASH ===== */
+
+.env-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 45%, #0d1f3c 20%, #020810 100%);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Outer border line */
+.env-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 10px;
+  border: 1.5px solid rgba(212, 168, 67, 0.75);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 2001;
+}
+
+/* Inner border line */
+.env-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 18px;
+  border: 0.75px solid rgba(212, 168, 67, 0.35);
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 2001;
+}
+
+.env-overlay.env-fadeout {
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.env-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.env-welcome       { margin-bottom: 6px; }
+.env-welcome-bn-row { margin-bottom: 22px; }
+.env-divider       { margin-bottom: 22px; }
+.env-hint          { margin-top: 28px; }
+
+/* Welcome hero title */
+.env-welcome {
+  font-family: 'Great Vibes', cursive;
+  font-size: 5rem;
+  color: #d4a843;
+  letter-spacing: 6px;
+  text-shadow:
+    0 0 30px rgba(212, 168, 67, 0.6),
+    0 0 60px rgba(212, 168, 67, 0.25);
+  animation: envHintPulse 3s ease-in-out infinite;
+}
+
+/* Bengali subtitle row */
+.env-welcome-bn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.env-feather {
+  width: 44px;
+  height: 44px;
+  opacity: 0.85;
+}
+
+.env-feather-l {
+  transform: rotate(-25deg);
+}
+
+.env-feather-r {
+  transform: rotate(25deg) scaleX(-1);
+}
+
+/* Bengali subtitle */
+.env-welcome-bn {
+  font-family: 'Noto Sans Bengali', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 300;
+  color: rgba(212, 168, 67, 0.7);
+  letter-spacing: 5px;
+}
+
+/* Fancy divider under Bengali text */
+.env-divider {
+  position: relative;
+  width: 280px;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent 0%,
+    rgba(212, 168, 67, 0.25) 15%,
+    rgba(212, 168, 67, 0.85) 40%,
+    rgba(212, 168, 67, 0.85) 60%,
+    rgba(212, 168, 67, 0.25) 85%,
+    transparent 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.env-divider::before,
+.env-divider::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  width: 55%;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent 0%,
+    rgba(212, 168, 67, 0.35) 40%,
+    rgba(212, 168, 67, 0.35) 60%,
+    transparent 100%
+  );
+}
+
+.env-divider::before { left: 0; }
+.env-divider::after  { right: 0; }
+
+.env-divider-gem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: #f0c65a;
+  text-shadow: 0 0 8px rgba(240, 198, 90, 0.8);
+  letter-spacing: 0;
+}
+
+/* Envelope wrapper */
+.env-wrap {
+  position: relative;
+  width: 320px;
+  height: 225px;
+  filter: drop-shadow(0 12px 48px rgba(212, 168, 67, 0.2));
+  transition: filter 0.4s ease;
+}
+
+.env-wrap.env-is-opening {
+  filter: drop-shadow(0 16px 60px rgba(212, 168, 67, 0.55));
+}
+
+/* Envelope body */
+.env-body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 178px;
+  background: linear-gradient(160deg, #122952 0%, #0e1f3c 100%);
+  border: 1.5px solid #d4a843;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+/* Gold line at top of body — revealed when flap lifts */
+.env-body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: #d4a843;
+}
+
+/* Left fold shadow triangle */
+.env-fold-l {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 160px solid rgba(5, 12, 26, 0.5);
+  border-top: 100px solid transparent;
+}
+
+/* Right fold shadow triangle */
+.env-fold-r {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-right: 160px solid rgba(5, 12, 26, 0.5);
+  border-top: 100px solid transparent;
+}
+
+/* Wax seal */
+.env-seal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #f7d97a, #c49730 45%, #7a4e09 100%);
+  border: 2px solid rgba(240, 198, 90, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #fff4cc;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 0 18px rgba(212, 168, 67, 0.5),
+    0 0 40px rgba(212, 168, 67, 0.15),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.35);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  z-index: 10;
+}
+
+.env-is-opening .env-seal {
+  transform: translate(-50%, -50%) scale(1.25);
+  box-shadow:
+    0 0 30px rgba(240, 198, 90, 0.9),
+    0 0 70px rgba(212, 168, 67, 0.45),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Envelope flap — triangle that folds back on click */
+.env-flap {
+  position: absolute;
+  top: 50px;
+  left: -1px;
+  width: calc(100% + 2px);
+  height: 140px;
+  clip-path: polygon(0 0, 100% 0, 50% 93%);
+  background: linear-gradient(170deg, #1e4080 0%, #163670 30%, #0f2550 70%, #0d1f3c 100%);
+  transform-origin: top center;
+  transform: perspective(900px) rotateX(0deg);
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 5;
+}
+
+.env-is-opening .env-flap {
+  transform: perspective(900px) rotateX(-175deg);
+}
+
+/* Hint text */
+.env-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 700;
+  color: #d4a843;
+  letter-spacing: 3px;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+  animation: envHintPulse 2.2s ease-in-out infinite;
+}
+
+.env-hint-bn {
+  font-family: 'Noto Serif Bengali', 'Hind Siliguri', serif;
+  font-size: 0.95rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-top: 6px;
+}
+
+.env-hint.env-hint-gone {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes envHintPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ===== END ENVELOPE SPLASH ===== */
+
 .yt-hidden {
   position: fixed;
   bottom: 0;
@@ -445,6 +782,37 @@ body {
   border: 0;
   opacity: 0;
   pointer-events: none;
+}
+
+.music-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(10, 22, 40, 0.75);
+  border: 1px solid rgba(212, 168, 67, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.25);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  z-index: 1000;
+}
+
+.music-toggle:hover {
+  border-color: rgba(212, 168, 67, 0.9);
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.45);
+  transform: scale(1.08);
+}
+
+.music-toggle svg {
+  width: 100%;
+  height: 100%;
 }
 
 @keyframes sparkle {

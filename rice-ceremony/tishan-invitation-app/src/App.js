@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 
 /* ---------- SVG Components ---------- */
@@ -104,6 +104,27 @@ const KrishnaFlute = () => (
   </svg>
 );
 
+const DirectionsButton = () => {
+  const destination = 'Swayambar, Baruipur, Kolkata 700144';
+
+  const openDirections = () => {
+    const dest = encodeURIComponent(destination);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, '_blank');
+  };
+
+  return (
+    <button className="directions-btn" onClick={openDirections}>
+      <svg className="directions-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#d4a843" strokeWidth="1.4" fill="none" />
+        <circle cx="12" cy="9" r="2.5" stroke="#d4a843" strokeWidth="1.2" fill="none" />
+        <path d="M17 17l4 4M3 3l4 4" stroke="none" />
+        <path d="M19 9h2M3 9h2M12 3V1M12 21v-2" stroke="#d4a843" strokeWidth="1" strokeLinecap="round" opacity="0.4" />
+      </svg>
+      Get Directions
+    </button>
+  );
+};
+
 const SmallDivider = () => <div className="small-divider" />;
 
 const SmallPeacockDivider = () => (
@@ -118,11 +139,164 @@ const SmallPeacockDivider = () => (
   </div>
 );
 
+/* ---------- Envelope Splash ---------- */
+
+const EnvelopeSplash = ({ onOpen }) => {
+  const [stage, setStage] = useState('sealed'); // sealed | opening | fadeout | gone
+
+  const handleClick = () => {
+    if (stage !== 'sealed') return;
+    setStage('opening');
+    onOpen();
+    setTimeout(() => setStage('fadeout'), 1300);
+  };
+
+  if (stage === 'gone') return null;
+
+  return (
+    <div
+      className={`env-overlay${stage === 'fadeout' ? ' env-fadeout' : ''}`}
+      onClick={handleClick}
+      onTransitionEnd={(e) => {
+        if (e.target === e.currentTarget && e.propertyName === 'opacity') setStage('gone');
+      }}
+    >
+      <CornerFlourish className="corner-tl" />
+      <CornerFlourish className="corner-tr" />
+      <CornerFlourish className="corner-bl" />
+      <CornerFlourish className="corner-br" />
+      <div className="env-content">
+        <div className="env-welcome">Welcome</div>
+        <div className="env-welcome-bn-row">
+          <PeacockFeather className="env-feather env-feather-l" />
+          <div className="env-welcome-bn">স্বাগতম</div>
+          <PeacockFeather className="env-feather env-feather-r" />
+        </div>
+        <div className="env-divider">
+          <span className="env-divider-gem">❖</span>
+        </div>
+        <div className={`env-wrap${stage !== 'sealed' ? ' env-is-opening' : ''}`}>
+          <div className="env-body">
+            <div className="env-fold-l" />
+            <div className="env-fold-r" />
+            <div className="env-seal">ॐ</div>
+          </div>
+          <div className="env-flap" />
+        </div>
+        <div className={`env-hint${stage !== 'sealed' ? ' env-hint-gone' : ''}`}>
+          ✦ Touch to open your invitation ✦
+          <div className="env-hint-bn">✦ আমন্ত্রণপত্র খুলতে স্পর্শ করুন ✦</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- Music Toggle Button ---------- */
+
+const MusicToggle = ({ isMuted, onClick }) => (
+  <button className="music-toggle" onClick={onClick} title={isMuted ? 'Play background music' : 'Mute music'}>
+    {isMuted ? (
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 5L6 9H2v6h4l5 4V5z" fill="#d4a843" />
+        <line x1="23" y1="9" x2="17" y2="15" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" />
+        <line x1="17" y1="9" x2="23" y2="15" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ) : (
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 5L6 9H2v6h4l5 4V5z" fill="#d4a843" />
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" />
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    )}
+  </button>
+);
+
 /* ---------- Main App ---------- */
 
 function App() {
+  const [isMuted, setIsMuted] = useState(true);
+  const playerRef = useRef(null);
+  const playerReadyRef = useRef(false);
+  const pendingUnmuteRef = useRef(false);
+  const hasPlayedRef = useRef(false);
+
+  useEffect(() => {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+
+    window.onYouTubeIframeAPIReady = () => {
+      playerRef.current = new window.YT.Player('yt-bg-player', {
+        videoId: 'tsf4TMl9AcQ',
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          playlist: 'tsf4TMl9AcQ',
+          controls: 0,
+          modestbranding: 1,
+          playsinline: 1,
+        },
+        events: {
+          onReady: (e) => {
+            playerReadyRef.current = true;
+            e.target.playVideo();
+            if (pendingUnmuteRef.current) {
+              e.target.seekTo(0, true);
+              e.target.unMute();
+              e.target.setVolume(40);
+              e.target.playVideo();
+            }
+          },
+          onStateChange: (e) => {
+            if (e.data === window.YT.PlayerState.PLAYING) {
+              hasPlayedRef.current = true;
+            }
+            // browser throttled or video ended — force resume
+            if (
+              hasPlayedRef.current &&
+              (e.data === window.YT.PlayerState.ENDED ||
+                e.data === window.YT.PlayerState.PAUSED)
+            ) {
+              setTimeout(() => {
+                try { playerRef.current.playVideo(); } catch (_) {}
+              }, 500);
+            }
+          },
+        },
+      });
+    };
+  }, []);
+
+  const handleEnvelopeOpen = () => {
+    setIsMuted(false);
+    if (playerRef.current && playerReadyRef.current) {
+      try {
+        playerRef.current.seekTo(0, true);
+        playerRef.current.unMute();
+        playerRef.current.setVolume(40);
+        playerRef.current.playVideo();
+      } catch (_) {}
+    } else {
+      pendingUnmuteRef.current = true;
+    }
+  };
+
+  const toggleMute = () => {
+    if (!playerRef.current) return;
+    if (isMuted) {
+      playerRef.current.unMute();
+      playerRef.current.setVolume(40);
+    } else {
+      playerRef.current.mute();
+    }
+    setIsMuted((prev) => !prev);
+  };
+
   return (
     <>
+      <EnvelopeSplash onOpen={handleEnvelopeOpen} />
       <div className="page-wrap">
         <div className="card-wrapper">
           <div className="card">
@@ -241,6 +415,7 @@ function App() {
                     <br />
                     Kolkata - 700144
                   </div>
+                  <DirectionsButton />
                 </div>
               </div>
 
@@ -251,20 +426,15 @@ function App() {
                   <div className="blessing-sub">আপনার উপস্থিতি আমাদের পরম আশীর্বাদ</div>
                 </div>
               </div>
+
+              <div className="build-version">v2.11</div>
             </div>
           </div>
         </div>
       </div>
 
-      <iframe
-        width="0"
-        height="0"
-        src="https://www.youtube.com/embed/tsf4TMl9AcQ?autoplay=1&mute=1&playsinline=1&loop=1&playlist=tsf4TMl9AcQ&controls=0&modestbranding=1"
-        title="Background Music"
-        frameBorder="0"
-        allow="autoplay; encrypted-media; picture-in-picture"
-        className="yt-hidden"
-      />
+      <div id="yt-bg-player" className="yt-hidden" />
+      <MusicToggle isMuted={isMuted} onClick={toggleMute} />
     </>
   );
 }
