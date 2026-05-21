@@ -411,7 +411,9 @@ function App() {
                   </svg>
                   <div className="detail-label">Venue</div>
                   <div className="detail-value">
-                    Swayambar, Baruipur
+                    Swayambar
+                    <br />
+                    Rabindranagar, Baruipur
                     <br />
                     Kolkata - 700144
                   </div>
@@ -427,7 +429,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="build-version">v2.11</div>
+              <div className="build-version">v2.12</div>
             </div>
           </div>
         </div>
