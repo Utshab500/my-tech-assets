@@ -5,9 +5,9 @@ services:
     image: nginx:latest
     restart: always
     ports:
-      - 80:80
+      - 8080:80
     volumes:
-      - /Users/utshabsaha/Learning/my-tech-assets/streamlit-issue-poc/squid-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     healthcheck:
       test: ["CMD", "curl" ,"http://localhost"]
       timeout: 20s
@@ -23,8 +23,8 @@ services:
       timeout: 20s
       retries: 10
 
-  streamlit:
-    image: streamlit:latest
-    restart: always
-    ports:
-      - 8501:8501
+  # streamlit:
+  #   image: streamlit:latest
+  #   restart: always
+  #   ports:
+  #     - 8501:8501
