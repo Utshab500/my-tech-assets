@@ -1,0 +1,1 @@
+Please read PLANNING.md, CLAUDE.md and TASKS.md to understand the project. Then complete the first task from TASKS.md.

@@ -1,0 +1,1 @@
+Help me create a PRD for a web app the allows users to chat witha "gym coach". The coach has experience to coach Cristiano Ronaldo, Virat Kohli, Usain Bolt. I want a clean, minimalist, and beautiful app
