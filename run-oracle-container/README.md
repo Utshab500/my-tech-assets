@@ -1,6 +1,15 @@
 # Oracle DB in container
 Here I try to run Oracle DB using docker and connect with SQL Developer VS Code Plugin.
 
+## Guides
+
+| Guide | Description |
+|---|---|
+| [Oracle Free — ARM / Apple Silicon](docs/oracle-free-arm.md) | Run Oracle Database Free on M1/M2/M3/M4 Macs using a native ARM64 image |
+| [Oracle Enterprise Edition](docs/oracle-enterprise.md) | Run Oracle Database Enterprise Edition on x86/amd64 machines |
+
+---
+
 ## Instructions
 
 ### Pre-req
