@@ -1,5 +1,23 @@
 # Running Oracle Database Free on ARM (Apple Silicon)
 
+## Prerequisites
+
+- Docker or Podman installed and running
+- An account at [container-registry.oracle.com](https://container-registry.oracle.com) (free account — no license acceptance needed for the Free edition)
+- **Apple Silicon Mac (M1/M2/M3/M4)** or any ARM64 machine
+
+**Login before pulling the image:**
+```bash
+export ORACLE_USERNAME=<your-email>
+export ORACLE_PAT=<your-pat-token>
+
+# Docker
+echo $ORACLE_PAT | docker login container-registry.oracle.com -u $ORACLE_USERNAME --password-stdin
+
+# Podman
+echo $ORACLE_PAT | podman login container-registry.oracle.com -u $ORACLE_USERNAME --password-stdin
+```
+
 ## Why `docker-compose-arm.yaml`?
 
 Oracle Database Enterprise Edition (`database/enterprise`) does not have a native ARM64 image, making it incompatible with Apple Silicon Macs (M1/M2/M3/M4). Running it under x86 emulation via Rosetta is slow and unreliable.
