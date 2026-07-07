@@ -1,0 +1,17 @@
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    platform: linux/arm64
+    container_name: jenkins
+    ports:
+      - "8080:8080"     # Web UI
+      - "50000:50000"   # Agent inbound port
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /run/user/501/podman/podman.sock:/var/run/docker.sock  # Podman socket — replace 501 with your UID (run: id -u)
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
