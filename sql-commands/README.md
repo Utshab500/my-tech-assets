@@ -2,9 +2,19 @@
 
 A collection of Oracle SQL scripts for learning and reference.
 
+## Repository Structure
+
+```
+sql-commands/
+├── README.md
+└── scripts/
+    ├── oracle_test_schema_setup.sql      # Provisions the test schema
+    └── oracle_test_schema_teardown.sql   # Cleans up the test schema
+```
+
 ---
 
-## oracle_test_schema_setup.sql
+## scripts/oracle_test_schema_setup.sql
 
 A self-contained Oracle SQL script that provisions a complete test environment from scratch. Run it as a DBA (`SYS` or `SYSTEM`) against any Oracle Database instance.
 
@@ -106,14 +116,42 @@ The `WITH GRANT OPTION` on `SELECT` allows `TEST_USER` to further delegate read 
 
 ### How to run
 
-```sql
--- Connect as DBA
-CONNECT SYS/password@your_db AS SYSDBA
+Using the **Oracle SQL Developer** extension in VS Code:
 
--- Run the script
-@oracle_test_schema_setup.sql
-```
+1. Open the **Database** panel from the Activity Bar (or `Ctrl+Shift+P` → `Oracle: Open Database Explorer`)
+2. Click **+** to add a new connection and fill in your DBA credentials (`SYS` or `SYSTEM`, role: `SYSDBA`)
+3. Once connected, open `scripts/oracle_test_schema_setup.sql` in the editor
+4. Press `Ctrl+Shift+P` → **Oracle: Execute All Statements** to run the entire script, or highlight individual statements and press `Ctrl+Enter` to run them one at a time
+5. Check the **Query Result** panel at the bottom to confirm each statement completed without errors
 
 ### Change the password before use
 
 The default password in the script is `TestPass#2024`. Replace it with a strong password before running in any shared or non-local environment.
+
+---
+
+## scripts/oracle_test_schema_teardown.sql
+
+Reverses everything created by `oracle_test_schema_setup.sql`. Run this to fully clean up the test environment. Must be executed as a DBA.
+
+### What it does
+
+Steps are executed in reverse dependency order to avoid constraint violations:
+
+| Step | Action |
+|---|---|
+| **1** | Revoke all DML privileges on the three tables from `TEST_USER` |
+| **2** | Drop `PROJECTS` first (has FK to `DEPARTMENTS`), then `DEPARTMENTS`, then `EMPLOYEES` — each with `PURGE` to bypass the recycle bin |
+| **3** | Drop `TEST_USER CASCADE` to remove the user and any remaining schema objects |
+| **4** | Drop `TEST_TS` tablespace with `INCLUDING CONTENTS AND DATAFILES` to delete the datafile from disk |
+
+### How to run
+
+Using the **Oracle SQL Developer** extension in VS Code:
+
+1. Open the **Database** panel and connect with your DBA credentials (`SYS` or `SYSTEM`, role: `SYSDBA`)
+2. Open `scripts/oracle_test_schema_teardown.sql` in the editor
+3. Press `Ctrl+Shift+P` → **Oracle: Execute All Statements** to run the entire script, or highlight individual statements and press `Ctrl+Enter` to run them one at a time
+4. Check the **Query Result** panel to confirm each statement completed without errors
+
+> **Warning:** This script is destructive and irreversible. All data in the `TEST_USER` schema will be permanently deleted.
