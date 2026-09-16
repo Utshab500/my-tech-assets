@@ -10,7 +10,7 @@ mkdir %PACKAGE_DIR%
 
 pip install -r requirements.txt -t %PACKAGE_DIR% --quiet
 
-copy fetch_audit_logs.py %PACKAGE_DIR%
+copy lambda_function.py %PACKAGE_DIR%
 
 powershell -Command "Compress-Archive -Path '%PACKAGE_DIR%/*' -DestinationPath '%ZIP_FILE%'"
 
