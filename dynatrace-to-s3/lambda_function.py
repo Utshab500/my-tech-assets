@@ -1,8 +1,10 @@
 import os
 import json
 import logging
+import boto3
 import requests
 import urllib3
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -23,6 +25,8 @@ HEADERS = {
     "Authorization": f"Api-Token {API_TOKEN}",
     "Accept": "application/json",
 }
+
+S3_FOLDER = "DynatraceLogs"
 
 
 def fetch_audit_logs() -> list[dict]:
@@ -58,18 +62,48 @@ def fetch_audit_logs() -> list[dict]:
     return all_records
 
 
-def run():
-    logger.info("Run started")
+def build_s3_key(fetched_at: str) -> str:
+    return f"{S3_FOLDER}/auditlogs-{fetched_at}.ndjson"
 
-    logs = fetch_audit_logs()
 
-    logger.info("Total records fetched: %d", len(logs))
-    print(json.dumps(logs, indent=2))
+def write_to_s3(records: list[dict], bucket: str, s3_key: str) -> None:
+    logger.info("Writing %d records to s3://%s/%s", len(records), bucket, s3_key)
+
+    ndjson_body = "\n".join(json.dumps(record) for record in records)
+
+    s3 = boto3.client("s3")
+    s3.put_object(
+        Bucket=bucket,
+        Key=s3_key,
+        Body=ndjson_body.encode("utf-8"),
+        ContentType="application/x-ndjson",
+    )
+
+    logger.info("Successfully written to s3://%s/%s", bucket, s3_key)
+
+
+def run(bucket: str) -> None:
+    logger.info("Run started | bucket=%s", bucket)
+
+    fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
+
+    records = fetch_audit_logs()
+
+    if not records:
+        logger.info("No records fetched. Skipping S3 write.")
+        return
+
+    s3_key = build_s3_key(fetched_at)
+    write_to_s3(records, bucket, s3_key)
+
+    logger.info("Run complete | total_records=%d | s3_key=%s", len(records), s3_key)
 
 
 def lambda_handler(event, context):
-    run()
+    bucket = os.environ["S3_BUCKET"]
+    run(bucket)
 
 
 if __name__ == "__main__":
-    run()
+    bucket = os.environ["S3_BUCKET"]
+    run(bucket)
