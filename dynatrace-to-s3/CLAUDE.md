@@ -29,7 +29,8 @@ EventBridge (rate: 5min)
 | **EventBridge Scheduler** | Triggers Lambda every 5 min |
 | **S3 Bucket** | Stores audit log JSON files |
 | **DynamoDB Table** | Checkpoint (`last_success` timestamp) + conditional-write concurrency lock |
-| **Lambda Env Vars** | `DYNATRACE_API_TOKEN`, `DYNATRACE_BASE_URL` — SSM/Secrets Manager TBD later |
+| **Lambda Env Vars** | `DYNATRACE_BASE_URL`, `SECRET_NAME`, `S3_BUCKET` |
+| **Secrets Manager** | Stores Dynatrace API token under key `dynatrace_api_token` |
 | **IAM Execution Role** | Lambda permissions — see below |
 
 ### Lambda IAM Role Permissions
@@ -38,7 +39,7 @@ EventBridge (rate: 5min)
 |------------|----------|
 | `s3:PutObject` | Target S3 bucket |
 | `dynamodb:GetItem`, `PutItem`, `UpdateItem` | Checkpoint/lock table |
-| ~~`ssm:GetParameter`~~ | Not needed — token passed via env var for now |
+| `secretsmanager:GetSecretValue` | Secret holding the Dynatrace API token |
 | `logs:CreateLogGroup`, `logs:PutLogEvents` | CloudWatch log group |
 
 ## Key Implementation Rules

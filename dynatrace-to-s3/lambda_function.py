@@ -19,17 +19,30 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 ENDPOINT_URL = os.environ["DYNATRACE_BASE_URL"]
-API_TOKEN = os.environ["DYNATRACE_API_TOKEN"]
-
-HEADERS = {
-    "Authorization": f"Api-Token {API_TOKEN}",
-    "Accept": "application/json",
-}
 
 S3_FOLDER = "DynatraceLogs"
 
 
-def fetch_audit_logs() -> list[dict]:
+def get_api_token() -> str:
+    secret_name = os.environ["SECRET_NAME"]
+    logger.info("Fetching Dynatrace API token from secret '%s'", secret_name)
+
+    client = boto3.client("secretsmanager")
+    response = client.get_secret_value(SecretId=secret_name)
+
+    secret = json.loads(response["SecretString"])
+    token = secret["dynatrace_api_token"]
+
+    logger.info("Successfully retrieved Dynatrace API token from Secrets Manager")
+    return token
+
+
+def fetch_audit_logs(api_token: str) -> list[dict]:
+    headers = {
+        "Authorization": f"Api-Token {api_token}",
+        "Accept": "application/json",
+    }
+
     all_records = []
     page = 1
 
@@ -38,7 +51,7 @@ def fetch_audit_logs() -> list[dict]:
     url = ENDPOINT_URL
     while True:
         logger.info("Fetching page %d ...", page)
-        response = requests.get(url, headers=HEADERS, verify=False)
+        response = requests.get(url, headers=headers, verify=False)
 
         logger.info("HTTP %s", response.status_code)
         response.raise_for_status()
@@ -87,7 +100,8 @@ def run(bucket: str) -> None:
 
     fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
 
-    records = fetch_audit_logs()
+    api_token = get_api_token()
+    records = fetch_audit_logs(api_token)
 
     if not records:
         logger.info("No records fetched. Skipping S3 write.")
