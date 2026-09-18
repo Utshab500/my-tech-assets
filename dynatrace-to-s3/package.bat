@@ -1,6 +1,6 @@
 @echo off
 
-set ZIP_FILE=lambda_package.zip
+set ZIP_FILE=lambda_function.zip
 set PACKAGE_DIR=package
 
 if exist %ZIP_FILE% del %ZIP_FILE%
