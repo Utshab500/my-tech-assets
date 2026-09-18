@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-ENDPOINT_URL = os.environ["DYNATRACE_BASE_URL"]
+ENDPOINT_URL = f"{os.environ['DYNATRACE_BASE_URL']}/api/v2/auditlogs"
 
 S3_FOLDER = "DynatraceLogs"
 
