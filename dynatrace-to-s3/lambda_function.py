@@ -16,6 +16,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%SZ",
 )
+logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 ENDPOINT_URL = f"{os.environ['DYNATRACE_BASE_URL']}/api/v2/auditlogs"
