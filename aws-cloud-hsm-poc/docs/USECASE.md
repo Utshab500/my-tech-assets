@@ -106,6 +106,8 @@ sudo /opt/cloudhsm/bin/configure-cli -a $HSM_IP
 > **Note:** Do NOT use `--parameters commands=[...]` — the square brackets trigger
 > zsh glob expansion and fail with "no matches found". Use a JSON string instead.
 
+Run from your local machine:
+
 ```bash
 INSTANCE_ID=$(terraform output -raw ec2_client_instance_id)
 
@@ -117,20 +119,23 @@ aws ssm send-command \
   --instance-ids "$INSTANCE_ID" \
   --document-name "AWS-RunShellScript" \
   --comment "Upload CA cert" \
-  --parameters "{\"commands\":[\"echo $CERT_B64 | base64 -d > /tmp/ca.crt\"]}" \
+  --parameters "{\"commands\":[\"echo $CERT_B64 | base64 -d > /tmp/ca.crt && sudo cp /tmp/ca.crt /opt/cloudhsm/etc/customerCA.crt\"]}" \
   --query 'Command.CommandId' --output text
 
-# Verify it landed on the EC2 (replace <command-id> with output above)
+# Verify (replace <command-id> with output above)
 aws ssm get-command-invocation \
   --command-id <command-id> \
   --instance-id "$INSTANCE_ID" \
   --query '{Status:Status,Error:StandardErrorContent}' --output json
 ```
 
+> The CloudHSM CLI reads the trust anchor from `/opt/cloudhsm/etc/customerCA.crt`.
+> Without this file, all `cloudhsm-cli` commands fail with a config error.
+
 ### 3.4 — Verify connectivity
 
 ```bash
-/opt/cloudhsm/bin/cloudhsm-cli cluster info
+/opt/cloudhsm/bin/cloudhsm-cli cluster hsm-info
 ```
 
 ---
@@ -363,6 +368,6 @@ key generate-symmetric aes --key-size-in-bits 256 --label "my-key" --token true
 key list                                         # list all keys
 key delete --filter attr.label=my-key            # delete a key
 
-cluster info                                     # show cluster + HSM status
+cluster hsm-info                                 # show cluster + HSM status
 quit                                             # exit interactive shell
 ```
