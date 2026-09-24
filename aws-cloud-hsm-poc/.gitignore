@@ -1,0 +1,17 @@
+# Terraform state and cache
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.d/
+*.tfplan
+
+# Sensitive files generated during cluster initialization
+ca.key
+ca.crt
+ca.srl
+cluster.csr
+cluster.crt
+
+# OS
+.DS_Store
