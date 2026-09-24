@@ -348,6 +348,34 @@ aws cloudhsmv2 describe-clusters \
 > aws cloudhsmv2 create-hsm --cluster-id $CLUSTER_ID --availability-zone us-east-1a
 > ```
 
+#### Option A via Terraform — the real DR flow (no import needed)
+
+If the HSMs are managed by Terraform (as in this POC), you do **not** use the CLI or
+`terraform import` to recover. When an HSM is lost out-of-band, `terraform apply` is your
+restore button:
+
+1. The HSMs are gone in AWS but Terraform's `main.tf` still declares them, so on the next
+   run Terraform **refreshes state, detects them missing, and plans to recreate them**.
+2. `terraform apply` creates fresh HSMs on the cluster. Because the cluster is empty, each
+   new HSM is **seeded from the latest backup** — restoring `poc-aes-key`.
+
+```bash
+# After an out-of-band HSM loss (e.g. hardware failure or manual deletion)
+terraform plan     # shows "N to add" for the missing HSMs — no import required
+terraform apply    # recreates them; key is restored from the latest backup
+```
+
+> **⚠️ CloudHSM deletion is asynchronous — wait before trusting `plan`.** Right after a
+> `delete-hsm`, the HSM lingers in a deleting state and still shows up in
+> `describe-clusters`. If you run `terraform plan` in that window it refreshes the HSM as
+> *present* and reports **"No changes"**. Wait until `Clusters[0].Hsms` is empty (or the
+> HSM disappears) before running `plan`/`apply`, or the drift won't be detected yet.
+
+> **When *is* `terraform import` needed?** Only when a replacement HSM was created
+> **outside Terraform** (e.g. via `aws cloudhsmv2 create-hsm`) and you want Terraform to
+> adopt that specific existing HSM. Import is for adopting orphaned resources — not for
+> disaster recovery. In a clean Terraform workflow, `apply` alone recovers.
+
 ### Option B — Restore to a brand-new cluster (full DR scenario)
 
 Option B creates an **independent new cluster** and leaves the old one untouched — you end
