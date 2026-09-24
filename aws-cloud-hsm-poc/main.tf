@@ -110,8 +110,13 @@ resource "aws_cloudhsm_v2_cluster" "main" {
   tags = { Name = "${var.project_name}-cluster" }
 }
 
-# Single HSM instance — minimum required for a functional cluster
+# Two HSM instances — required to satisfy the key availability check
 resource "aws_cloudhsm_v2_hsm" "primary" {
+  cluster_id = aws_cloudhsm_v2_cluster.main.cluster_id
+  subnet_id  = aws_subnet.private.id
+}
+
+resource "aws_cloudhsm_v2_hsm" "secondary" {
   cluster_id = aws_cloudhsm_v2_cluster.main.cluster_id
   subnet_id  = aws_subnet.private.id
 }

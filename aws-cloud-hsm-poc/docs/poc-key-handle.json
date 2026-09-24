@@ -1,0 +1,48 @@
+{
+  "error_code": 0,
+  "data": {
+    "key": {
+      "key-reference": "0x0000000000000eaf",
+      "key-info": {
+        "key-owners": [
+          {
+            "username": "poc_user",
+            "key-coverage": "full"
+          }
+        ],
+        "shared-users": [],
+        "key-quorum-values": {
+          "manage-key-quorum-value": 0,
+          "use-key-quorum-value": 0
+        },
+        "cluster-coverage": "full"
+      },
+      "attributes": {
+        "key-type": "aes",
+        "label": "poc-aes-key",
+        "id": "0x",
+        "check-value": "0x7d6dc4",
+        "class": "secret-key",
+        "encrypt": false,
+        "decrypt": false,
+        "token": true,
+        "always-sensitive": true,
+        "derive": false,
+        "destroyable": true,
+        "extractable": true,
+        "local": true,
+        "modifiable": true,
+        "never-extractable": false,
+        "private": true,
+        "sensitive": true,
+        "sign": true,
+        "trusted": false,
+        "unwrap": false,
+        "verify": true,
+        "wrap": false,
+        "wrap-with-trusted": false,
+        "key-length-bytes": 32
+      }
+    }
+  }
+}

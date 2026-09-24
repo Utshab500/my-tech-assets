@@ -5,12 +5,12 @@
 The simplest end-to-end use case is:
 1. Deploy the cluster via Terraform
 2. Initialize the cluster (one-time manual step — mandatory)
-3. Create a Crypto Officer (CO) user and a key
-4. Encrypt a test string with that key
-5. Trigger a backup
-6. Simulate a failure by deleting the HSM
-7. Restore by creating a new cluster from the backup
-8. Verify the key and decrypt the string
+3. Create a Crypto User and a key
+4. Verify the key exists (`key list`)
+5. Understand the backup model — backups are automatic-only and must post-date the key
+6. Simulate a failure by deleting the HSMs (this also triggers the backup that captures the key)
+7. Restore by adding an HSM back (or creating a new cluster from the backup)
+8. Verify the key survived the restore
 
 ---
 
@@ -142,127 +142,229 @@ aws ssm get-command-invocation \
 
 ## Phase 4 — Create Crypto Officer and a Test Key
 
-### 4.1 — Log in as admin and set the CO password
+### 4.1 — Activate the cluster and log in as admin
 
-First-time login uses the built-in admin (PRECO role):
 ```bash
 /opt/cloudhsm/bin/cloudhsm-cli interactive
-
-# Inside the CLI:
-login --username admin --role preco
 ```
 
-When prompted, set the admin password. After setting it, the role changes to CO (Crypto Officer).
+**First-time only** — activate the cluster to set the initial admin password:
+```
+cluster activate
+```
 
-### 4.2 — Create a symmetric AES-256 key
+You will be prompted to set a password. After activation, log in:
+```
+login --username admin --role admin
+```
 
-```bash
-# Still inside cloudhsm-cli interactive
+> `cluster activate` must run before any login attempt. Skipping it causes
+> "Incorrect authentication credentials" even with the right password.
+
+### 4.2 — Create a Crypto User
+
+Admin can manage users but cannot perform cryptographic operations. Create a Crypto User (CU) for key operations:
+
+```
+user create --username poc_user --role crypto-user
+```
+
+Then switch to that user:
+
+```
+logout
+login --username poc_user --role crypto-user
+```
+
+### 4.3 — Create a symmetric AES-256 key
+
+```
 key generate-symmetric aes \
-  --key-size-in-bits 256 \
-  --label "poc-aes-key" \
-  --token true \
-  --session false
+  --key-length-bytes 32 \
+  --label "poc-aes-key"
 ```
 
-Note the **key handle** printed (e.g., `7`). Save it — you'll reference it for encrypt/decrypt.
+Note the **key handle** and label printed. You'll confirm this same key reappears after the restore.
 
-### 4.3 — Encrypt a test string
+### 4.4 — Verify the key exists
 
-```bash
-# From the EC2 shell (not inside cloudhsm-cli)
-echo -n "Hello CloudHSM POC" | base64 > /tmp/plaintext.b64
-
-/opt/cloudhsm/bin/cloudhsm-cli key wrap aes-gcm \
-  --wrapping-key-filter attr.label=poc-aes-key \
-  --key-to-wrap /tmp/plaintext.b64 \
-  --output /tmp/ciphertext.bin
+```
+key list
 ```
 
-> For a simpler test, you can use the PKCS#11 sample tools or OpenSSL with the
-> PKCS#11 engine. The above wrapping command is the native CloudHSM CLI approach.
+Note the key handle printed next to `poc-aes-key` — after restore you will run `key list` again and confirm the same key is still present. That is the proof of a successful backup and restore.
 
 ---
 
-## Phase 5 — Backup Process
+## Phase 5 — Understand the Backup Model
 
-### How backups work in CloudHSM
+### Backups are automatic-only
 
-AWS CloudHSM takes **automatic daily backups** of the cluster. Each backup contains:
-- All HSM keys (encrypted using the cluster's own internal key)
-- Cluster configuration and users
+There is **no manual backup trigger** — not in the AWS CLI (`create-backup` was removed)
+and not in the AWS Console (the Backups tab has no "Create backup" button). AWS creates
+backups automatically:
 
-You can also trigger a **manual backup** at any time.
+- **Every 24 hours** on a schedule
+- **When an HSM is added** to the cluster
+- **When an HSM is deleted** from the cluster
+- **When the cluster is deleted** (a final snapshot)
 
-### 5.1 — Trigger a manual backup
+Each backup contains all HSM keys, users, and cluster configuration — as they existed
+**at the moment the snapshot was taken**.
+
+### ⚠️ Critical distinction — a backup only contains keys that existed when it was taken
+
+This is the single most important thing to understand for this POC:
+
+```
+Timeline of THIS cluster:
+
+  14:40  HSM-1 added   → backup-pq4iqnhzrdq   ✗ no key yet
+  14:54  HSM-2 added   → backup-dn4bwowtkd6   ✗ no key yet
+  ~15:0x  poc-aes-key created                  ← key exists only AFTER this point
+```
+
+Both existing backups were triggered by the HSM-add events, which happened **before**
+you generated `poc-aes-key`. **Neither of them contains your key.** Restoring from
+either would give you a cluster with no `poc-aes-key`.
+
+To get the key into a backup, you need a **new** automatic backup taken *after* key
+creation. Since there is no manual trigger, the practical way to force one is to
+**delete an HSM** — which is exactly what Phase 6 does. That deletion snapshots the
+current cluster state (including your key) before removing the HSM.
+
+### 5.1 — Confirm the existing backups pre-date your key
 
 ```bash
 CLUSTER_ID=$(terraform output -raw cluster_id)
 
-aws cloudhsmv2 create-backup \
-  --cluster-id $CLUSTER_ID \
-  --region us-east-1
-
-# Wait for backup to complete (~5 min)
 aws cloudhsmv2 describe-backups \
   --filters clusterIds=$CLUSTER_ID \
   --query 'Backups[*].{ID:BackupId,State:BackupState,Created:CreateTimestamp}' \
   --output table
 ```
 
-### 5.2 — Note the Backup ID
-
-```bash
-BACKUP_ID=$(aws cloudhsmv2 describe-backups \
-  --filters clusterIds=$CLUSTER_ID \
-  --query 'Backups[?BackupState==`READY`] | [0].BackupId' \
-  --output text)
-
-echo "Backup ID: $BACKUP_ID"
-```
+Compare the newest `Created` timestamp against when you created the key. If all backups
+pre-date the key, proceed to Phase 6 to produce a fresh one.
 
 ---
 
-## Phase 6 — Simulate a Failure
+## Steps we perform next (this POC run)
 
-Delete the HSM instance (cluster persists, HSM is gone):
-```bash
-HSM_ID=$(terraform output -raw hsm_id)
+1. **Phase 6** — delete both HSMs one at a time. Each deletion triggers an automatic
+   backup; the snapshots capture `poc-aes-key`. With no HSMs left, the cluster keeps its
+   `ACTIVE` state (for `hsm2m.medium`) but has an empty HSM list.
+2. **Phase 6.2** — confirm a new backup appeared with a timestamp *after* key creation.
+   That is our valid restore point.
+3. **Phase 7 (Option A)** — add one HSM back to the same cluster. Because no live HSM
+   remains to clone from, the new HSM is seeded from the **latest backup** — restoring
+   `poc-aes-key`. ([why it uses the last backup](./hsm-cluster-sync-internals.md))
+4. **Phase 8** — `key list` shows `poc-aes-key` is back. POC complete.
 
-aws cloudhsmv2 delete-hsm \
-  --cluster-id $CLUSTER_ID \
-  --hsm-id $HSM_ID
-```
+---
 
-Verify cluster state moves to `DEGRADED` then `UNINITIALIZED`:
+## Phase 6 — Simulate a Failure (and capture a backup that contains the key)
+
+### 6.1 — Delete both HSMs
+
+List the HSM IDs currently in the cluster:
 ```bash
 aws cloudhsmv2 describe-clusters \
   --filters clusterIds=$CLUSTER_ID \
-  --query 'Clusters[0].State'
+  --query 'Clusters[0].Hsms[*].HsmId' --output text
+```
+
+Delete them one at a time. **Each deletion triggers an automatic backup snapshot first**,
+so the key is captured before the HSM goes away:
+```bash
+aws cloudhsmv2 delete-hsm --cluster-id $CLUSTER_ID --hsm-id <hsm-id-1>
+aws cloudhsmv2 delete-hsm --cluster-id $CLUSTER_ID --hsm-id <hsm-id-2>
+```
+
+Confirm no HSMs remain in the cluster:
+```bash
+aws cloudhsmv2 describe-clusters \
+  --filters clusterIds=$CLUSTER_ID \
+  --query 'Clusters[0].{State:State,HSMs:Hsms[*].HsmId}' --output json
+```
+
+> **Note on cluster state:** For `hsm2m.medium`, the cluster stays `ACTIVE` even with
+> zero HSMs (once activated, it does not revert). This differs from the older
+> `hsm1.medium`, which moved to `UNINITIALIZED`. What matters for the restore is that
+> the HSM list is now **empty** — no live HSM remains to clone from, so the next HSM
+> you add will be seeded from the latest backup.
+
+### 6.2 — Confirm a fresh backup exists (contains the key)
+
+```bash
+aws cloudhsmv2 describe-backups \
+  --filters clusterIds=$CLUSTER_ID \
+  --query 'Backups[*].{ID:BackupId,State:BackupState,Created:CreateTimestamp}' \
+  --output table
+```
+
+You should now see a **new** backup with a timestamp *after* you created the key. That is
+your valid restore point. Note its ID:
+```bash
+BACKUP_ID=$(aws cloudhsmv2 describe-backups \
+  --filters clusterIds=$CLUSTER_ID \
+  --query 'sort_by(Backups[?BackupState==`READY`], &CreateTimestamp)[-1].BackupId' \
+  --output text)
+
+echo "Restore point: $BACKUP_ID"
 ```
 
 ---
 
 ## Phase 7 — Restore from Backup
 
-### Option A — Add a new HSM to the existing cluster (fastest)
+### Option A — Add an HSM back to the existing cluster (fastest)
 
-The existing cluster already has the backup key material. Simply add a new HSM:
+The cluster is already `ACTIVE` with an empty HSM list (for `hsm2m.medium` it stayed
+`ACTIVE` after both HSMs were deleted), and it still holds the backup key material. Add an HSM:
 ```bash
 aws cloudhsmv2 create-hsm \
   --cluster-id $CLUSTER_ID \
   --availability-zone us-east-1a
 ```
 
-The new HSM will be automatically initialized from the cluster's last backup state.
-→ [Why does it always use the last backup? Read the internals.](./hsm-cluster-sync-internals.md)
+Because **no live HSM remains to clone from**, the new HSM is seeded from the cluster's
+**latest backup** — the one you captured in Phase 6 that contains `poc-aes-key`.
+→ [Why it uses the last backup — read the internals.](./hsm-cluster-sync-internals.md)
 
-Wait for state `ACTIVE`, then verify your key is still present:
+The cluster state is already `ACTIVE`, so that is not the signal to watch. Instead, wait
+for the **new HSM** to reach `ACTIVE` (~5 min):
 ```bash
-/opt/cloudhsm/bin/cloudhsm-cli key list
+aws cloudhsmv2 describe-clusters \
+  --filters clusterIds=$CLUSTER_ID \
+  --query 'Clusters[0].Hsms[*].{Id:HsmId,State:State,Ip:EniIp}' --output table
 ```
 
+> **Add a second HSM before running key operations.** The key restores onto the first HSM,
+> but the availability check (see [Phase 4.2 note](#phase-4--create-crypto-officer-and-a-test-key))
+> requires the key to exist on at least 2 HSMs — otherwise even `key list` fails with
+> *"key must be available on at least 2 HSMs"*. Add a second HSM and the key replicates to it:
+> ```bash
+> aws cloudhsmv2 create-hsm --cluster-id $CLUSTER_ID --availability-zone us-east-1a
+> ```
+
 ### Option B — Restore to a brand-new cluster (full DR scenario)
+
+Option B creates an **independent new cluster** and leaves the old one untouched — you end
+up with two clusters. The backup is a standalone resource, so this works **even if you
+delete the old cluster first**. If you don't need the old cluster, delete it before
+restoring to avoid paying for two:
+
+```bash
+# Optional — remove the stale cluster first (backups survive deletion)
+aws cloudhsmv2 delete-hsm --cluster-id $CLUSTER_ID --hsm-id <hsm-id>   # if any HSMs remain
+aws cloudhsmv2 delete-cluster --cluster-id $CLUSTER_ID
+
+# Confirm the backup is still READY after deletion
+aws cloudhsmv2 describe-backups \
+  --query 'Backups[?BackupState==`READY`].{ID:BackupId,Created:CreateTimestamp}' \
+  --output table
+```
 
 In Terraform, update `main.tf` to create a restore cluster using `source_backup_identifier`:
 
@@ -294,12 +396,19 @@ terraform apply -target=aws_cloudhsm_v2_cluster.restored \
 
 ### 7.1 — Update client config with new HSM IP
 
+Point `RESTORE_CLUSTER_ID` at the cluster you restored into:
+- **Option A** — the same cluster: `RESTORE_CLUSTER_ID=$CLUSTER_ID`
+- **Option B** — the new cluster's ID (from `terraform output` or `describe-clusters`)
+
 ```bash
+RESTORE_CLUSTER_ID=$CLUSTER_ID   # Option A; for Option B use the new cluster id
+
 NEW_HSM_IP=$(aws cloudhsmv2 describe-clusters \
-  --filters clusterIds=<new-cluster-id> \
+  --filters clusterIds=$RESTORE_CLUSTER_ID \
   --query 'Clusters[0].Hsms[0].EniIp' \
   --output text)
 
+# Run inside the SSM session on the EC2
 sudo /opt/cloudhsm/bin/configure-cli -a $NEW_HSM_IP
 ```
 
@@ -307,25 +416,24 @@ sudo /opt/cloudhsm/bin/configure-cli -a $NEW_HSM_IP
 
 ```bash
 /opt/cloudhsm/bin/cloudhsm-cli interactive
-login --username admin --role co
+login --username poc_user --role crypto-user
 key list
 ```
 
-You should see `poc-aes-key` with the same handle. The data is restored.
+You should see `poc-aes-key` with the same label. The key was restored from the backup.
 
 ---
 
-## Phase 8 — Decrypt to Confirm Round-Trip
+## Phase 8 — Confirm Round-Trip
 
-```bash
-/opt/cloudhsm/bin/cloudhsm-cli key unwrap aes-gcm \
-  --wrapping-key-filter attr.label=poc-aes-key \
-  --wrapped-key /tmp/ciphertext.bin \
-  --output /tmp/recovered.b64
+Inside the CloudHSM CLI (logged in as `poc_user`):
 
-base64 -d /tmp/recovered.b64
-# Expected output: Hello CloudHSM POC
 ```
+login --username poc_user --role crypto-user
+key list
+```
+
+You should see `poc-aes-key` with the same label. The key survived the backup and restore — the POC is complete.
 
 ---
 
@@ -362,9 +470,9 @@ terraform destroy
 ```bash
 # All commands run on EC2 client
 cloudhsm-cli interactive                        # enter interactive shell
-login --username admin --role co                 # authenticate
+login --username admin --role admin              # authenticate
 
-key generate-symmetric aes --key-size-in-bits 256 --label "my-key" --token true
+key generate-symmetric aes --key-length-bytes 32 --label "my-key"
 key list                                         # list all keys
 key delete --filter attr.label=my-key            # delete a key
 

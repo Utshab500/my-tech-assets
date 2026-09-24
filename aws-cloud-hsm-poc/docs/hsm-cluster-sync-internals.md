@@ -97,12 +97,17 @@ it closes the window by making the last backup as fresh as possible.
 
 | Action | What survives |
 |---|---|
-| `delete-hsm` | Cluster persists; domain key and backups remain in AWS |
-| `delete-cluster` | Cluster removed; backups become orphaned (kept 90 days, then purged) |
+| `delete-hsm` | Cluster persists; backups remain; key material recoverable from backup |
+| `delete-cluster` | Cluster removed, but **backups survive** (kept for the retention period) |
 
-If you delete the **cluster** itself, the domain key used to decrypt backups is eventually
-destroyed, making those backups unrecoverable. This is why `delete-cluster` is a
-highly destructive, irreversible action.
+Deleting the **cluster** does **not** make its backups unrecoverable. A final backup is
+taken during deletion, and all existing backups remain first-class resources in your
+account. You can restore any of them into a **new cluster** using `source_backup_identifier`
+(a standard DR flow) — the source cluster does not need to exist.
+
+The only true point of no return is when a backup **expires** (default retention 90 days,
+configurable 7–379) or you explicitly run `delete-backup`. Until then, the key material in
+a backup is fully restorable.
 
 ---
 
@@ -110,7 +115,10 @@ highly destructive, irreversible action.
 
 The auto-restore on `create-hsm` works because:
 1. The **cluster object persists** even after all HSMs are deleted.
-2. AWS holds the **domain key** tied to your cluster ID in its secure infrastructure.
+2. AWS holds the **domain key** in its secure backup infrastructure.
 3. The latest backup is always encrypted with that domain key, so AWS can decrypt and
    inject it into any new HSM provisioned for that cluster — automatically, without
    any action from you.
+
+And even if the cluster is deleted, its backups survive for the retention period and can
+be restored into a brand-new cluster via `source_backup_identifier`.
