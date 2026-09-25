@@ -15,6 +15,7 @@ Here I try various POCs, reproduce issues, and work on them to fix or experiment
 | Project | Description |
 |---|---|
 | [aws-cloud-hsm-poc](aws-cloud-hsm-poc/) | Terraform-deployed CloudHSM cluster with a step-by-step backup & restore walkthrough |
+| [aws-EFS-poc](aws-EFS-poc/) | Terraform-deployed ECS cluster with EFS volume mounted, covering failure simulation, backup, and restoration |
 | [aws-cost-fetch](aws-cost-fetch/) | Fetch AWS billing and cost information via AWS API |
 | [dynatrace-to-s3](dynatrace-to-s3/) | EventBridge-scheduled Lambda that polls Dynatrace audit logs and writes them to S3 as NDJSON |
 | [gcp-generate-signed-url-node-app](gcp-generate-signed-url-node-app/) | POC for generating signed URLs for GCP bucket objects, deployed as a K8 workload |
