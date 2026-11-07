@@ -110,15 +110,23 @@ resource "aws_cloudhsm_v2_cluster" "main" {
   tags = { Name = "${var.project_name}-cluster" }
 }
 
-# Two HSM instances — required to satisfy the key availability check
+# First HSM — cluster must be manually initialized and activated before a second
+# HSM can be added (AWS CloudHSM requires out-of-band certificate signing).
 resource "aws_cloudhsm_v2_hsm" "primary" {
   cluster_id = aws_cloudhsm_v2_cluster.main.cluster_id
   subnet_id  = aws_subnet.private.id
 }
 
+# Second HSM for HA — add this ONLY after the cluster is fully activated:
+#   1. Download CSR:  aws cloudhsmv2 describe-clusters --filters clusterIds=<id>
+#   2. Sign the CSR with your CA and upload via the console or AWS CLI
+#   3. Set the HSM admin password (first login through CloudHSM CLI)
+#   4. Then re-run `terraform apply` with this block uncommented.
+#
 resource "aws_cloudhsm_v2_hsm" "secondary" {
   cluster_id = aws_cloudhsm_v2_cluster.main.cluster_id
   subnet_id  = aws_subnet.private.id
+  depends_on = [aws_cloudhsm_v2_hsm.primary]
 }
 
 # ─── EC2 Client Instance ─────────────────────────────────────────────────────

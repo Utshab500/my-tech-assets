@@ -86,22 +86,36 @@ aws cloudhsmv2 describe-clusters \
 
 ## Phase 3 — Connect to the EC2 Client and Configure HSM
 
-### 3.1 — Open an SSM session
+### 3.1 — Get the HSM ENI IP address
+
+The CloudHSM client needs the HSM's ENI IP. Fetch it from AWS (works even if the
+Terraform output was not captured):
+
+```bash
+aws cloudhsmv2 describe-clusters \
+  --filters clusterIds=$CLUSTER_ID \
+  --query 'Clusters[0].Hsms[*].{HsmId:HsmId,IP:EniIp,AZ:AvailabilityZone,State:State}' \
+  --output table
+```
+
+Copy the `IP` value of an HSM in `ACTIVE` state — you'll paste it in step 3.3.
+
+### 3.2 — Open an SSM session
 
 ```bash
 # From your local machine
 $(terraform output -raw ssm_connect_command)
 ```
 
-### 3.2 — Configure the CloudHSM client with the HSM IP
+### 3.3 — Configure the CloudHSM client with the HSM IP
 
 ```bash
-HSM_IP="<paste hsm_eni_ip from terraform output>"
+HSM_IP="<paste IP from step 3.1>"
 
 sudo /opt/cloudhsm/bin/configure-cli -a $HSM_IP
 ```
 
-### 3.3 — Copy the CA certificate to the EC2
+### 3.4 — Copy the CA certificate to the EC2
 
 > **Note:** Do NOT use `--parameters commands=[...]` — the square brackets trigger
 > zsh glob expansion and fail with "no matches found". Use a JSON string instead.
@@ -132,7 +146,7 @@ aws ssm get-command-invocation \
 > The CloudHSM CLI reads the trust anchor from `/opt/cloudhsm/etc/customerCA.crt`.
 > Without this file, all `cloudhsm-cli` commands fail with a config error.
 
-### 3.4 — Verify connectivity
+### 3.5 — Verify connectivity
 
 ```bash
 /opt/cloudhsm/bin/cloudhsm-cli cluster hsm-info
