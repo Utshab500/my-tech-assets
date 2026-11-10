@@ -33,6 +33,10 @@ cp .env.example .env               # optional — only needed to override API_BA
 | Var | Default | Purpose |
 | --- | --- | --- |
 | `API_BASE_URL` | `http://localhost:3001/api` | Base URL of the backend API. |
+| `TRANSPORT` | `stdio` | `stdio` for local clients (Cline, Claude Desktop, …) or `streamable-http` for remote. |
+| `MCP_BEARER_TOKEN` | *(unset)* | **Required** when `TRANSPORT=streamable-http`. Shared secret that remote clients present as `Authorization: Bearer <token>`. The server refuses to boot in HTTP mode without it. |
+| `HOST` | `127.0.0.1` | Bind address for HTTP mode. Default is loopback-only; ngrok still reaches it. |
+| `PORT` | `8000` | TCP port for HTTP mode. |
 
 ## Run
 

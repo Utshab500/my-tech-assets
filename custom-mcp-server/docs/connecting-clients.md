@@ -163,19 +163,24 @@ Cline has a UI for this — easier than hand-editing config.
 
 ## 4. Going remote (for web clients that *do* allow custom connectors)
 
-If your target is **claude.ai (Pro+)** or **ChatGPT Business/Enterprise**, you need the server reachable over HTTPS.
+If your target is **claude.ai (Pro+)** or **ChatGPT Business/Enterprise**, you need the server reachable over HTTPS. The server already supports this — the HTTP transport is picked via env vars, and bearer-token auth is baked in and refuses to boot without a token (so you can't accidentally expose a write endpoint).
 
-### Step 1 — Switch transport
+### Step 1 — Run the server in HTTP mode
 
-In `server.py`:
+```bash
+export MCP_BEARER_TOKEN="$(openssl rand -hex 32)"   # strong random secret
+export TRANSPORT=streamable-http                    # default was `stdio`
+# Optional overrides (shown with their defaults):
+# export HOST=127.0.0.1
+# export PORT=8000
 
-```python
-if __name__ == "__main__":
-    # Default stdio for local clients:
-    # mcp.run()
-    # Streamable HTTP for remote clients:
-    mcp.run(transport="streamable_http", port=8000)
+python server.py
+# -> Starting MCP server on http://127.0.0.1:8000/mcp (bearer auth enabled).
 ```
+
+If you forget `MCP_BEARER_TOKEN` the server exits immediately with a clear error — intentional guardrail.
+
+> **Why bind to `127.0.0.1`?** Loopback-only means no accidental exposure from an attacker on your Wi-Fi. Ngrok still reaches it because it runs *on* your machine and talks to localhost.
 
 ### Step 2 — Expose it on HTTPS
 
@@ -188,14 +193,23 @@ ngrok http 8000
 
 Production: put it behind a small VM / Fly.io / Render / Cloud Run with TLS (Let's Encrypt).
 
-### Step 3 — Add auth
+### Step 3 — Smoke-test the auth
 
-**The moment the server is public, anyone on the internet can call `add_user`.** At minimum, add a shared bearer token checked in middleware before FastMCP dispatches tools. Rotate it. Don't commit it.
+```bash
+# Without a token → 401
+curl -i https://<random>.ngrok-free.app/mcp
+
+# With the token → 200 (returns an MCP handshake payload)
+curl -i https://<random>.ngrok-free.app/mcp \
+     -H "Authorization: Bearer $MCP_BEARER_TOKEN"
+```
 
 ### Step 4 — Register the connector
 
-- **claude.ai** → *Settings* → *Connectors* → *Add custom connector* → paste `https://.../mcp` → paste bearer token.
-- **ChatGPT Business/Enterprise** → admin console → *Connectors* → *Add remote MCP*.
+- **claude.ai** → *Settings* → *Connectors* → *Add custom connector* → paste `https://<random>.ngrok-free.app/mcp` → paste the same `MCP_BEARER_TOKEN` when prompted for authentication.
+- **ChatGPT Business/Enterprise** → admin console → *Connectors* → *Add remote MCP* → same URL + token.
+
+Rotate the token any time by setting a new `MCP_BEARER_TOKEN`, restarting the server, and updating the connector. Never commit the value — it belongs in `.env` (gitignored) or a secret manager.
 
 ---
 

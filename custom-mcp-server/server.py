@@ -7,23 +7,36 @@ Wraps a small REST API exposed at ``$API_BASE_URL`` (default
 - ``GET  /health``      -> health check
 - ``POST /add_user``    -> create a user record in the backend DB
 
+Transport is picked at runtime from ``$TRANSPORT``:
+
+- ``stdio`` (default) — for Claude Desktop, Claude Code, Cline, MCP Inspector.
+- ``streamable-http`` — for remote clients (claude.ai connectors, etc.).
+  Requires ``$MCP_BEARER_TOKEN`` so the publicly-reachable endpoint is
+  not open to the internet.
+
 Run locally with::
 
     pip install -r requirements.txt
-    python server.py            # stdio transport (for Claude Desktop, etc.)
+    python server.py                                    # stdio
+    TRANSPORT=streamable-http MCP_BEARER_TOKEN=... \\
+        python server.py                                # HTTP + bearer auth
 """
 
 from __future__ import annotations
 
+import hmac
 import json
 import os
+import sys
 from typing import List
 
 import httpx
 from dotenv import load_dotenv
+from mcp.server.auth.provider import AccessToken, TokenVerifier
+from mcp.server.auth.settings import AuthSettings
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 # Load `.env` (if present) before reading any env-driven config below.
 load_dotenv()
@@ -36,9 +49,77 @@ API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:3001/api").rstrip("/"
 # and MCP clients should fail fast rather than block a conversation.
 HTTP_TIMEOUT_SECONDS = 15.0
 
+# Transport + HTTP-mode knobs. Stdio is the safe default — only switch to
+# HTTP when you need a remote client (claude.ai, etc.).
+TRANSPORT = os.getenv("TRANSPORT", "stdio").lower()
+HTTP_HOST = os.getenv("HOST", "127.0.0.1")
+HTTP_PORT = int(os.getenv("PORT", "8000"))
+MCP_BEARER_TOKEN = os.getenv("MCP_BEARER_TOKEN")
+
+
+class SharedSecretTokenVerifier(TokenVerifier):
+    """Constant-time bearer-token check against a single shared secret.
+
+    Suitable for a small POC exposed via ngrok where every caller presents the
+    same token. For multi-client or revocable setups, swap in a JWT/OAuth
+    verifier instead (same ``TokenVerifier`` protocol).
+    """
+
+    def __init__(self, expected_token: str) -> None:
+        self._expected = expected_token
+
+    async def verify_token(self, token: str) -> AccessToken | None:
+        # `hmac.compare_digest` avoids leaking the token via timing differences.
+        if not hmac.compare_digest(token, self._expected):
+            return None
+        return AccessToken(
+            token=token,
+            client_id="shared-secret",
+            scopes=["mcp:call"],
+        )
+
+
+def _build_server() -> MCPServer:
+    """Construct the MCPServer, wiring bearer auth only when running over HTTP."""
+    if TRANSPORT == "stdio":
+        # Stdio is a local subprocess — the client already proved it has
+        # permission to spawn it, so no additional auth layer is needed.
+        return MCPServer("crud_mcp")
+
+    if TRANSPORT != "streamable-http":
+        raise SystemExit(
+            f"TRANSPORT={TRANSPORT!r} is not supported; use 'stdio' or 'streamable-http'."
+        )
+
+    # HTTP mode: refuse to boot without a token so you can't accidentally
+    # expose a write endpoint over the internet.
+    if not MCP_BEARER_TOKEN:
+        raise SystemExit(
+            "TRANSPORT=streamable-http requires MCP_BEARER_TOKEN. "
+            "Set it to a long random string (e.g. `openssl rand -hex 32`)."
+        )
+
+    base_url = AnyHttpUrl(f"http://{HTTP_HOST}:{HTTP_PORT}")
+    return MCPServer(
+        "crud_mcp",
+        token_verifier=SharedSecretTokenVerifier(MCP_BEARER_TOKEN),
+        # `issuer_url` and `resource_server_url` are OAuth-metadata fields
+        # required by `AuthSettings`; for a shared-secret deployment they just
+        # need to be valid URLs identifying this server. We explicitly set
+        # `validate_token_resource=False` because a shared secret has no OAuth
+        # audience to validate — the `SharedSecretTokenVerifier` is the final
+        # arbiter of whether a token is good.
+        auth=AuthSettings(
+            issuer_url=base_url,
+            resource_server_url=base_url,
+            validate_token_resource=False,
+        ),
+    )
+
+
 # MCP server instance. The name "crud_mcp" is how clients
 # (Claude Desktop, MCP Inspector, …) identify this server.
-mcp = MCPServer("crud_mcp")
+mcp = _build_server()
 
 
 class AddUserInput(BaseModel):
@@ -218,6 +299,16 @@ async def add_user(params: AddUserInput) -> str:
 
 
 if __name__ == "__main__":
-    # Default `mcp.run()` uses stdio transport — the standard way MCP
-    # clients (Claude Desktop, Claude Code, Inspector) spawn a server.
-    mcp.run()
+    if TRANSPORT == "streamable-http":
+        # 127.0.0.1 bind keeps the process off the open internet; ngrok/other
+        # tunnels reach it via the loopback interface.
+        print(
+            f"Starting MCP server on http://{HTTP_HOST}:{HTTP_PORT}/mcp "
+            "(bearer auth enabled).",
+            file=sys.stderr,
+        )
+        mcp.run(transport="streamable-http", host=HTTP_HOST, port=HTTP_PORT)
+    else:
+        # Stdio: the standard way MCP clients (Claude Desktop, Claude Code,
+        # Cline, Inspector) spawn a server as a subprocess.
+        mcp.run()
